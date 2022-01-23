@@ -42,33 +42,63 @@ enum Menu {
     NEW_GAME, LOAD_GAME
 };
 
-void LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture addUserButton2,
-                 Texture addUserButton3, Texture trashButton1, Texture trashButton2, Texture searchButton2,
-                 Texture searchButton3, Font *font, Player *&p_player, int &countPlayers);
+Texture checkButton1, checkButton2, enterButton1, enterButton2, cursor, addUserButton1, addUserButton2, trashButton1,
+        trashButton2, cancelButton1, cancelButton2, searchButton1, searchButton2, bomb, number1, number2, number3,
+        number4, number5, number6, number7, number8, flag, saveButton1, saveButton2;
+Font *font;
 
-void MainWindow(Texture bomb, Texture number1, Texture number2, Texture number3, Texture number4, Texture number5,
-                Texture number6, Texture number7, Texture number8, Texture flag, Font *font);
-
+void LoginWindow(Player *&p_player, int &countPlayers);
+void MainWindow();
 void BubbleSort(Player *a, int SIZE);
 void Swap(Player &a, Player &b);
-int OpenSquare(int squareNumber, bool checkBomb = true);
-void LeaderboardWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1, Texture cancel2);
-bool IsFlagOn(int squareNumber);
+void LeaderboardWindow(Player *p_player, int countPlayers);
 void InsertBombs();
-void MenuWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1, Texture cancel2);
-void
-DifficultySelectWindow(Font *font, Texture cursor, Texture check1, Texture check2, Texture cancel1, Texture cancel2);
-void ChangeNameWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1, Texture cancel2, Texture cursor,
-                      Texture check1, Texture check2);
+void MenuWindow(Player *p_player, int countPlayers);
+void DifficultySelectWindow();
+void ChangeNameWindow(Player *p_player, int countPlayers);
 void Keyboard(std::string &str, bool onlyNumber = false);
+void CountOfBombsNearSquare();
+void GameOver();
+int OpenSquare(int squareNumber, bool checkBomb = true);
 int StrToNum(std::string &str);
 int pow(int n, int power);
-std::string NumToStr(int n);
-bool ContainNumber(std::string str);
-void CountOfBombsNearSquare();
 int CountOpenedSquares();
 int CountFlags();
-void GameOver();
+bool IsFlagOn(int squareNumber);
+bool ContainNumber(std::string str);
+std::string NumToStr(int n);
+
+void LoadTextures() {
+    checkButton1 = SBDL::loadTexture("Reference/check1.png");
+    checkButton2 = SBDL::loadTexture("Reference/check2.png");
+    enterButton1 = SBDL::loadTexture("Reference/enter1.png");
+    enterButton2 = SBDL::loadTexture("Reference/enter2.png");
+    cursor = SBDL::loadTexture("Reference/text-editor.png");
+    addUserButton1 = SBDL::loadTexture("Reference/user-add1.png");
+    addUserButton2 = SBDL::loadTexture("Reference/user-add2.png");
+    trashButton1 = SBDL::loadTexture("Reference/trash1.png");
+    trashButton2 = SBDL::loadTexture("Reference/trash2.png");
+    cancelButton1 = SBDL::loadTexture("Reference/remove1.png");
+    cancelButton2 = SBDL::loadTexture("Reference/remove2.png");
+    searchButton1 = SBDL::loadTexture("Reference/search1.png");
+    searchButton2 = SBDL::loadTexture("Reference/search2.png");
+    bomb = SBDL::loadTexture("Reference/bomb.png");
+    number1 = SBDL::loadTexture("Reference/1.png");
+    number2 = SBDL::loadTexture("Reference/2.png");
+    number3 = SBDL::loadTexture("Reference/3.png");
+    number4 = SBDL::loadTexture("Reference/4.png");
+    number5 = SBDL::loadTexture("Reference/5.png");
+    number6 = SBDL::loadTexture("Reference/6.png");
+    number7 = SBDL::loadTexture("Reference/7.png");
+    number8 = SBDL::loadTexture("Reference/8.png");
+    flag = SBDL::loadTexture("Reference/flag.png");
+    saveButton1 = SBDL::loadTexture("Reference/save1.png");
+    saveButton2 = SBDL::loadTexture("Reference/save2.png");
+}
+
+void LoadFonts() {
+    font = SBDL::loadFont("Reference/comic.ttf", 20);
+}
 
 int main()
 {
@@ -93,34 +123,8 @@ int main()
     const int WINDOW_WIDTH = 800;
     const int WINDOW_HEIGHT = 670;
     SBDL::InitEngine("Minesweeper", WINDOW_WIDTH, WINDOW_HEIGHT);
-
-    // Loading Texture
-    Texture checkButton1 = SBDL::loadTexture("Reference/check1.png");
-    Texture checkButton2 = SBDL::loadTexture("Reference/check2.png");
-    Texture enterButton1 = SBDL::loadTexture("Reference/enter1.png");
-    Texture enterButton2 = SBDL::loadTexture("Reference/enter2.png");
-    Texture cursor = SBDL::loadTexture("Reference/text-editor.png");
-    Texture addUserButton1 = SBDL::loadTexture("Reference/user-add1.png");
-    Texture addUserButton2 = SBDL::loadTexture("Reference/user-add2.png");
-    Texture trashButton1 = SBDL::loadTexture("Reference/trash1.png");
-    Texture trashButton2 = SBDL::loadTexture("Reference/trash2.png");
-    Texture cancelButton1 = SBDL::loadTexture("Reference/remove1.png");
-    Texture cancelButton2 = SBDL::loadTexture("Reference/remove2.png");
-    Texture searchButton1 = SBDL::loadTexture("Reference/search1.png");
-    Texture searchButton2 = SBDL::loadTexture("Reference/search2.png");
-    Texture bomb = SBDL::loadTexture("Reference/bomb.png");
-    Texture number1 = SBDL::loadTexture("Reference/1.png");
-    Texture number2 = SBDL::loadTexture("Reference/2.png");
-    Texture number3 = SBDL::loadTexture("Reference/3.png");
-    Texture number4 = SBDL::loadTexture("Reference/4.png");
-    Texture number5 = SBDL::loadTexture("Reference/5.png");
-    Texture number6 = SBDL::loadTexture("Reference/6.png");
-    Texture number7 = SBDL::loadTexture("Reference/7.png");
-    Texture number8 = SBDL::loadTexture("Reference/8.png");
-    Texture flag = SBDL::loadTexture("Reference/flag.png");
-    Texture saveButton1 = SBDL::loadTexture("Reference/save1.png");
-    Texture saveButton2 = SBDL::loadTexture("Reference/save2.png");
-    Font *font = SBDL::loadFont("Reference/comic.ttf", 20);
+    LoadTextures();
+    LoadFonts();
 
     // Initializing
     const int FPS = 30; //frame per second
@@ -136,29 +140,28 @@ int main()
 
         //Game logic code
         if (window == LOGIN) {
-            LoginWindow(enterButton1, enterButton2, cursor, addUserButton1,
-                        addUserButton2, trashButton1, trashButton2, searchButton1, searchButton2, font, p_player,
+            LoginWindow(p_player,
                         countPlayers);
         }
 
         else if (window == MAIN) {
-            MainWindow(bomb, number1, number2, number3, number4, number5, number6, number7, number8, flag, font);
+            MainWindow();
         }
 
         else if (window == DIFFICULTY) {
-            DifficultySelectWindow(font, cursor, checkButton1, checkButton2, cancelButton1, cancelButton2);
+            DifficultySelectWindow();
         }
 
         else if (window == MENU) {
-            MenuWindow(font, p_player, countPlayers, cancelButton1, cancelButton2);
+            MenuWindow(p_player, countPlayers);
         }
 
         else if (window == LEADERBOARD) {
-            LeaderboardWindow(font, p_player, countPlayers, cancelButton1, cancelButton2);
+            LeaderboardWindow(p_player, countPlayers);
         }
 
         else if (window == CHANGE_NAME) {
-            ChangeNameWindow(font, p_player, countPlayers, cancelButton1, cancelButton2, cursor, checkButton1, checkButton2);
+            ChangeNameWindow(p_player, countPlayers);
         }
 
         SBDL::updateRenderScreen();
@@ -167,14 +170,10 @@ int main()
 
         if (elapsedTime < DELAY)
             SBDL::delay(DELAY - elapsedTime);
-
     }
 }
 
-void
-LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture addUserButton2, Texture addUserButton3,
-            Texture trashButton1, Texture trashButton2, Texture searchButton2, Texture searchButton3, Font *font,
-            Player *&p_player, int &countPlayers) {
+void LoginWindow(Player *&p_player, int &countPlayers) {
 
     SDL_Rect idFieldRect = {10, 10, 250, 70};
     SDL_Rect cursorRect = {15, 40, 15, 20};
@@ -350,9 +349,9 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
 
     // Add User Button
     if (SBDL::mouseInRect(addUserButtonRect))
-        SBDL::showTexture(addUserButton3, addUserButtonRect);
-    else
         SBDL::showTexture(addUserButton2, addUserButtonRect);
+    else
+        SBDL::showTexture(addUserButton1, addUserButtonRect);
 
     // Trash Button
     if (SBDL::mouseInRect(trashButtonRect))
@@ -362,9 +361,9 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
 
     // Search button
     if (SBDL::mouseInRect(searchButtonRect))
-        SBDL::showTexture(searchButton3, searchButtonRect);
-    else
         SBDL::showTexture(searchButton2, searchButtonRect);
+    else
+        SBDL::showTexture(searchButton1, searchButtonRect);
 
     // Add Player string
     Texture strAddPlayer = SBDL::createFontTexture(font, "Add Player", 136, 184, 147);
@@ -372,9 +371,7 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
     SBDL::freeTexture(strAddPlayer);
 }
 
-void MainWindow(Texture bomb, Texture number1, Texture number2, Texture number3, Texture number4, Texture number5,
-                Texture number6, Texture number7, Texture number8, Texture flag, Font *font) {
-
+void MainWindow() {
     // string: Number of bombs left
     Texture strBombLeft =  SBDL::createFontTexture(font, NumToStr(game.countBombs - CountFlags()) +
                                                    " Bombs left", 0, 0, 0);
@@ -465,8 +462,7 @@ void MainWindow(Texture bomb, Texture number1, Texture number2, Texture number3,
     }
 }
 
-void
-DifficultySelectWindow(Font *font, Texture cursor, Texture check1, Texture check2, Texture cancel1, Texture cancel2) {
+void DifficultySelectWindow() {
     Difficultly difficultly;
     bool buttonClicked = false;
     static short int inputField = -1; // -1: Left field  +1: Right field
@@ -485,12 +481,12 @@ DifficultySelectWindow(Font *font, Texture cursor, Texture check1, Texture check
 
     // Cancel Button
     if (SBDL::mouseInRect(cancelRect)) {
-        SBDL::showTexture(cancel2, cancelRect);
+        SBDL::showTexture(cancelButton2, cancelRect);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
             window = MENU;
         }
     } else {
-        SBDL::showTexture(cancel1, cancelRect);
+        SBDL::showTexture(cancelButton1, cancelRect);
     }
 
     // Easy Button
@@ -537,9 +533,9 @@ DifficultySelectWindow(Font *font, Texture cursor, Texture check1, Texture check
 
     // Check custom button
     if (SBDL::mouseInRect(checkRect))
-        SBDL::showTexture(check2, checkRect);
+        SBDL::showTexture(checkButton2, checkRect);
     else
-        SBDL::showTexture(check1, checkRect);
+        SBDL::showTexture(checkButton1, checkRect);
 
     if (s_countBombs[0] == ' ' || s_countSquares[0] == ' ') {
         SBDL::drawRectangle(checkRect, 255, 255, 255, 170);
@@ -665,7 +661,7 @@ DifficultySelectWindow(Font *font, Texture cursor, Texture check1, Texture check
     }
 }
 
-void MenuWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1, Texture cancel2) {
+void MenuWindow(Player *p_player, int countPlayers) {
     Menu menu;
     bool buttonClicked = false;
 
@@ -678,12 +674,12 @@ void MenuWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1,
 
     // Cancel button
     if (SBDL::mouseInRect(cancelRect)) {
-        SBDL::showTexture(cancel2, cancelRect);
+        SBDL::showTexture(cancelButton2, cancelRect);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
             window = LOGIN;
         }
     } else {
-        SBDL::showTexture(cancel1, cancelRect);
+        SBDL::showTexture(cancelButton1, cancelRect);
     }
 
     // New game button
@@ -764,7 +760,7 @@ void MenuWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1,
     }
 }
 
-void LeaderboardWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1, Texture cancel2) {
+void LeaderboardWindow(Player *p_player, int countPlayers) {
     SDL_Rect cancelRect = {5, 5, 40, 40};
 
     int count = countPlayers >= 5 ? 5 : countPlayers;
@@ -778,18 +774,16 @@ void LeaderboardWindow(Font *font, Player *p_player, int countPlayers, Texture c
     }
 
     if (SBDL::mouseInRect(cancelRect)) {
-        SBDL::showTexture(cancel2, cancelRect);
+        SBDL::showTexture(cancelButton2, cancelRect);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
             window = MENU;
         }
     } else {
-        SBDL::showTexture(cancel1, cancelRect);
+        SBDL::showTexture(cancelButton1, cancelRect);
     }
 }
 
-void ChangeNameWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1, Texture cancel2, Texture cursor,
-                      Texture check1, Texture check2) {
-
+void ChangeNameWindow(Player *p_player, int countPlayers) {
     static std::string s_newName = " ";
     Keyboard(s_newName);
 
@@ -802,21 +796,21 @@ void ChangeNameWindow(Font *font, Player *p_player, int countPlayers, Texture ca
 
     // Cancel button
     if (SBDL::mouseInRect(cancelRect)) {
-        SBDL::showTexture(cancel2, cancelRect);
+        SBDL::showTexture(cancelButton2, cancelRect);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
             window = MENU;
             s_newName = " ";
             s_newName.shrink_to_fit();
         }
     } else {
-        SBDL::showTexture(cancel1, cancelRect);
+        SBDL::showTexture(cancelButton1, cancelRect);
     }
 
     // Check button
     if (SBDL::mouseInRect(checkRect))
-        SBDL::showTexture(check2, checkRect);
+        SBDL::showTexture(checkButton2, checkRect);
     else
-        SBDL::showTexture(check1, checkRect);
+        SBDL::showTexture(checkButton1, checkRect);
 
     if (s_newName[0] == ' ') {
         SBDL::drawRectangle(checkRect, 255, 255, 255, 170);
@@ -1152,7 +1146,6 @@ int pow(int n, int power) {
 }
 
 void InsertBombs() {
-
     delete[] game.square.p_bombs;
     game.square.p_bombs = new SDL_Rect*[game.countBombs];
 
@@ -1179,7 +1172,6 @@ void InsertBombs() {
 }
 
 void CountOfBombsNearSquare() {
-
     int n0 = 0, n1 = 0, n2 = 0, n3 = 0, n4 = 0, n5 = 0, n6 = 0, n7 = 0, n8 = 0;
     int sum[20][20] = {0};
 
