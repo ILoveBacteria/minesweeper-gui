@@ -95,80 +95,32 @@ int main()
     SBDL::InitEngine("Minesweeper", WINDOW_WIDTH, WINDOW_HEIGHT);
 
     // Loading Texture
-    Texture checkButton1 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                             "Exercise/Minesweeper/Refrence/check1.png");
-
-    Texture checkButton2 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                             "Exercise/Minesweeper/Refrence/check2.png");
-
-    Texture enterButton1 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                             "Exercise/Minesweeper/Refrence/enter1.png");
-
-    Texture enterButton2 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                             "Exercise/Minesweeper/Refrence/enter2.png");
-
-    Texture cursor = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                       "Exercise/Minesweeper/Refrence/text-editor.png");
-
-    Texture addUserButton1 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                               "Exercise/Minesweeper/Refrence/user-add1.png");
-
-    Texture addUserButton2 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                               "Exercise/Minesweeper/Refrence/user-add2.png");
-
-    Texture addUserButton3 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                               "Exercise/Minesweeper/Refrence/user-add3.png");
-
-    Texture trashButton1 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                             "Exercise/Minesweeper/Refrence/trash1.png");
-
-    Texture trashButton2 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                             "Exercise/Minesweeper/Refrence/trash2.png");
-
-    Texture cancelButton1 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                              "Exercise/Minesweeper/Refrence/remove1.png");
-
-    Texture cancelButton2 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                              "Exercise/Minesweeper/Refrence/remove2.png");
-
-    Texture searchButton2 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                              "Exercise/Minesweeper/Refrence/search2.png");
-
-    Texture searchButton3 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                              "Exercise/Minesweeper/Refrence/search3.png");
-
-    Texture bomb = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                              "Exercise/Minesweeper/Refrence/bomb.png");
-
-    Texture number1 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                     "Exercise/Minesweeper/Refrence/1.png");
-
-    Texture number2 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                        "Exercise/Minesweeper/Refrence/2.png");
-
-    Texture number3 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                        "Exercise/Minesweeper/Refrence/3.png");
-
-    Texture number4 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                        "Exercise/Minesweeper/Refrence/4.png");
-
-    Texture number5 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                        "Exercise/Minesweeper/Refrence/5.png");
-
-    Texture number6 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                        "Exercise/Minesweeper/Refrence/6.png");
-
-    Texture number7 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                        "Exercise/Minesweeper/Refrence/7.png");
-
-    Texture number8 = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                        "Exercise/Minesweeper/Refrence/8.png");
-
-    Texture flag = SBDL::loadTexture("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                        "Exercise/Minesweeper/Refrence/flag.png");
-
-    Font *font = SBDL::loadFont("D:/Our Information/Documents/Univercity/Mabani Computer Class/"
-                                "Exercise/Minesweeper/Refrence/comic.ttf", 20);
+    Texture checkButton1 = SBDL::loadTexture("Reference/check1.png");
+    Texture checkButton2 = SBDL::loadTexture("Reference/check2.png");
+    Texture enterButton1 = SBDL::loadTexture("Reference/enter1.png");
+    Texture enterButton2 = SBDL::loadTexture("Reference/enter2.png");
+    Texture cursor = SBDL::loadTexture("Reference/text-editor.png");
+    Texture addUserButton1 = SBDL::loadTexture("Reference/user-add1.png");
+    Texture addUserButton2 = SBDL::loadTexture("Reference/user-add2.png");
+    Texture trashButton1 = SBDL::loadTexture("Reference/trash1.png");
+    Texture trashButton2 = SBDL::loadTexture("Reference/trash2.png");
+    Texture cancelButton1 = SBDL::loadTexture("Reference/remove1.png");
+    Texture cancelButton2 = SBDL::loadTexture("Reference/remove2.png");
+    Texture searchButton1 = SBDL::loadTexture("Reference/search1.png");
+    Texture searchButton2 = SBDL::loadTexture("Reference/search2.png");
+    Texture bomb = SBDL::loadTexture("Reference/bomb.png");
+    Texture number1 = SBDL::loadTexture("Reference/1.png");
+    Texture number2 = SBDL::loadTexture("Reference/2.png");
+    Texture number3 = SBDL::loadTexture("Reference/3.png");
+    Texture number4 = SBDL::loadTexture("Reference/4.png");
+    Texture number5 = SBDL::loadTexture("Reference/5.png");
+    Texture number6 = SBDL::loadTexture("Reference/6.png");
+    Texture number7 = SBDL::loadTexture("Reference/7.png");
+    Texture number8 = SBDL::loadTexture("Reference/8.png");
+    Texture flag = SBDL::loadTexture("Reference/flag.png");
+    Texture saveButton1 = SBDL::loadTexture("Reference/save1.png");
+    Texture saveButton2 = SBDL::loadTexture("Reference/save2.png");
+    Font *font = SBDL::loadFont("Reference/comic.ttf", 20);
 
     // Initializing
     const int FPS = 30; //frame per second
@@ -184,8 +136,8 @@ int main()
 
         //Game logic code
         if (window == LOGIN) {
-            LoginWindow(enterButton1, enterButton2, cursor, addUserButton2,
-                        addUserButton3, trashButton1, trashButton2, searchButton2, searchButton3, font, p_player,
+            LoginWindow(enterButton1, enterButton2, cursor, addUserButton1,
+                        addUserButton2, trashButton1, trashButton2, searchButton1, searchButton2, font, p_player,
                         countPlayers);
         }
 
@@ -368,7 +320,6 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
         s_idPlayer = " ";
         s_idPlayer.shrink_to_fit();
     }
-
 
     // Draw Rectangles
     SBDL::drawRectangle(idFieldRect,199, 255, 254);
