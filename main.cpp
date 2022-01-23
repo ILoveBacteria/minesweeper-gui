@@ -12,7 +12,7 @@ struct Player {
 struct Game {
     int countBombs;
     int countSquareInRow;
-    Player *p_logedInPlayer;
+    Player player;
     struct Square {
         SDL_Rect **p_bombs;
         SDL_Rect **backgroundSquare;
@@ -173,7 +173,7 @@ int main()
     // Initializing
     const int FPS = 30; //frame per second
     const int DELAY = 1000 / FPS; //delay we need at each frame
-    window = MENU;
+    window = LOGIN;
     srand(time(nullptr));
 
     while (SBDL::isRunning()) {
@@ -203,6 +203,10 @@ int main()
 
         else if (window == LEADERBOARD) {
             LeaderboardWindow(font, p_player, countPlayers, cancelButton1, cancelButton2);
+        }
+
+        else if (window == CHANGE_NAME) {
+            ChangeNameWindow(font, p_player, countPlayers, cancelButton1, cancelButton2, cursor, checkButton1, checkButton2);
         }
 
         SBDL::updateRenderScreen();
@@ -262,7 +266,6 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
             std::ofstream text ("player.txt");
 
             text << ++countPlayers << '\n';
-
             for (int i = 0; i < countPlayers; ++i) {
                 text << (p_player + i)->score << '\n';
                 text << (p_player + i)->id << '\n';
@@ -273,7 +276,8 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
             SBDL::freeTexture(logInPrompt);
             logInPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
 
-            game.p_logedInPlayer = p_player + countPlayers - 1;
+            game.player.id = s_idPlayer;
+            game.player.score = "0";
             s_logInActive = true;
             s_idPlayer = " ";
             s_idPlayer.shrink_to_fit();
@@ -321,7 +325,7 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
 
             text.close();
 
-            if (s_idPlayer == game.p_logedInPlayer->id) {
+            if (s_idPlayer == game.player.id) {
                 s_logInActive = false;
                 SBDL::freeTexture(logInPrompt);
                 logInPrompt = SBDL::createFontTexture(font, " ", 255, 0, 0);
@@ -347,17 +351,19 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
             SBDL::freeTexture(logInPrompt);
             logInPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
 
-            game.p_logedInPlayer = p_player + i;
+            game.player.id = s_idPlayer;
+            game.player.score = "0";
             s_logInActive = true;
             s_idPlayer = " ";
             s_idPlayer.shrink_to_fit();
         }
     }
 
+    // Clicked on enter button
     else if (SBDL::mouseInRect(enterButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED) &&
             s_logInActive) {
 
-        window = MAIN;
+        window = MENU;
         s_idPlayer = " ";
         s_idPlayer.shrink_to_fit();
     }
@@ -850,17 +856,25 @@ void ChangeNameWindow(Font *font, Player *p_player, int countPlayers, Texture ca
     }
 
     else if (SBDL::mouseInRect(checkRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+        // Find player in players database
+        for (int i = 0; i < countPlayers; ++i) {
+            if (game.player.id == (p_player + i)->id) {
+                (p_player + i)->id = s_newName;
+                game.player.id = s_newName;
+            }
+        }
+
         // Writing on a text file
         std::ofstream text ("player.txt");
 
         text << countPlayers << '\n';
-
         for (int i = 0; i < countPlayers; ++i) {
             text << (p_player + i)->score << '\n';
             text << (p_player + i)->id << '\n';
         }
 
         text.close();
+        window = MENU;
     }
 
     // Cursor
@@ -879,6 +893,7 @@ void Keyboard(std::string &str, bool onlyNumber) {
         str.pop_back();
         if (str.length() == 0)
             str.push_back(' ');
+        str.shrink_to_fit();
     }
     else if (onlyNumber) {
         if (SBDL::keyPressed(SDL_SCANCODE_KP_0) || SBDL::keyPressed(SDL_SCANCODE_0)) {
