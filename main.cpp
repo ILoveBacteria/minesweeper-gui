@@ -55,7 +55,7 @@ int OpenSquare(int squareNumber, bool checkBomb = true);
 void LeaderboardWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1, Texture cancel2);
 bool IsFlagOn(int squareNumber);
 void InsertBombs();
-void MenuWindow(Font *font, Player *p_player, int countPlayers);
+void MenuWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1, Texture cancel2);
 void
 DifficultySelectWindow(Font *font, Texture cursor, Texture check1, Texture check2, Texture cancel1, Texture cancel2);
 void ChangeNameWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1, Texture cancel2, Texture cursor,
@@ -198,7 +198,7 @@ int main()
         }
 
         else if (window == MENU) {
-            MenuWindow(font, p_player, countPlayers);
+            MenuWindow(font, p_player, countPlayers, cancelButton1, cancelButton2);
         }
 
         else if (window == LEADERBOARD) {
@@ -317,7 +317,6 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
             std::ofstream text ("player.txt");
 
             text << --countPlayers << '\n';
-
             for (int i = 0; i < countPlayers; ++i) {
                 text << (p_player + i)->score << '\n';
                 text << (p_player + i)->id << '\n';
@@ -333,6 +332,7 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
 
             s_idPlayer = " ";
             s_idPlayer.shrink_to_fit();
+            s_logInActive = false;
         }
     }
 
@@ -364,6 +364,7 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
             s_logInActive) {
 
         window = MENU;
+        s_logInActive = false;
         s_idPlayer = " ";
         s_idPlayer.shrink_to_fit();
     }
@@ -392,7 +393,9 @@ LoginWindow(Texture enterButton1, Texture enterButton2, Texture cursor, Texture 
     SBDL::freeTexture(strID);
 
     // Log in prompt
-    SBDL::showTexture(logInPrompt, 5, 300);
+    if (s_logInActive) {
+        SBDL::showTexture(logInPrompt, 5, 300);
+    }
 
     // Add User Button
     if (SBDL::mouseInRect(addUserButtonRect))
@@ -711,7 +714,7 @@ DifficultySelectWindow(Font *font, Texture cursor, Texture check1, Texture check
     }
 }
 
-void MenuWindow(Font *font, Player *p_player, int countPlayers) {
+void MenuWindow(Font *font, Player *p_player, int countPlayers, Texture cancel1, Texture cancel2) {
     Menu menu;
     bool buttonClicked = false;
 
@@ -720,6 +723,17 @@ void MenuWindow(Font *font, Player *p_player, int countPlayers) {
     SDL_Rect changeNameRect  = {300, 300, 130, 30};
     SDL_Rect leaderboardRect = {300, 400, 120, 30};
     SDL_Rect quitRect        = {300, 500, 50, 30};
+    SDL_Rect cancelRect = {5, 5, 40, 40};
+
+    // Cancel button
+    if (SBDL::mouseInRect(cancelRect)) {
+        SBDL::showTexture(cancel2, cancelRect);
+        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+            window = LOGIN;
+        }
+    } else {
+        SBDL::showTexture(cancel1, cancelRect);
+    }
 
     // New game button
     Texture strNewGame = SBDL::createFontTexture(font, "New Game", 14, 158, 33);
@@ -840,6 +854,8 @@ void ChangeNameWindow(Font *font, Player *p_player, int countPlayers, Texture ca
         SBDL::showTexture(cancel2, cancelRect);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
             window = MENU;
+            s_newName = " ";
+            s_newName.shrink_to_fit();
         }
     } else {
         SBDL::showTexture(cancel1, cancelRect);
@@ -875,6 +891,8 @@ void ChangeNameWindow(Font *font, Player *p_player, int countPlayers, Texture ca
 
         text.close();
         window = MENU;
+        s_newName = " ";
+        s_newName.shrink_to_fit();
     }
 
     // Cursor
