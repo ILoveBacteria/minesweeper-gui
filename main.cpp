@@ -9,6 +9,16 @@ struct Player {
     std::string id;
 };
 
+struct Save {
+    std::string countSquaresInRow;
+    std::string countBombs;
+    std::string time;
+    std::string coverSquares;
+    std::string flag;
+    std::string bomb;
+    std::string id;
+};
+
 struct Game {
     int countBombs;
     int countSquareInRow;
@@ -557,6 +567,27 @@ std::string NumToStr(int n) {
     return result;
 }
 
+std::string CurrentTime() {
+    // Current date/time based on current system
+    time_t now = time(nullptr);
+    // convert now to string form
+    return ctime(&now);
+}
+
+std::string ConvertToSavable(SDL_Rect ***a) {
+    std::string result;
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            if (a[i][j] == nullptr)
+                result.push_back('0');
+            else
+                result.push_back('1');
+        }
+    }
+
+    return result;
+}
+
 bool IsFlagOn(int row, int column) {
     if (game.square.flag[row][column] != nullptr)
         return true;
@@ -640,9 +671,58 @@ void GameOver() {
     }
 }
 
+void SaveGame() {
+    // Reading saves from file
+    std::ifstream read;
+    std::string line;
+    read.open("save.txt");
+
+    std::getline(read, line);
+    int countSaves = StrToNum(line);
+
+    auto *p_save = new Save[countSaves];
+
+    for (int i = 0; i < countSaves; ++i) {
+        std::getline(read, (p_save + i)->countSquaresInRow);
+        std::getline(read, (p_save + i)->countBombs);
+        std::getline(read, (p_save + i)->time);
+        std::getline(read, (p_save + i)->coverSquares);
+        std::getline(read, (p_save + i)->flag);
+        std::getline(read, (p_save + i)->bomb);
+        std::getline(read, (p_save + i)->id);
+    }
+    read.close();
+
+    std::ofstream write;
+    write.open("save.txt");
+
+    write << countSaves + 1 << '\n';
+    for (int i = 0; i < countSaves; ++i) {
+        write << (p_save + i)->countSquaresInRow << '\n';
+        write << (p_save + i)->countBombs << '\n';
+        write << (p_save + i)->time << '\n';
+        write << (p_save + i)->coverSquares << '\n';
+        write << (p_save + i)->flag << '\n';
+        write << (p_save + i)->bomb << '\n';
+        write << (p_save + i)->id << '\n';
+    }
+    delete[] p_save;
+
+    write << NumToStr(game.countSquareInRow) << '\n';
+    write << NumToStr(game.countBombs) << '\n';
+    write << CurrentTime();
+    write << ConvertToSavable(game.square.coverSquare) << '\n';
+    write << ConvertToSavable(game.square.flag) << '\n';
+    write << ConvertToSavable(game.square.bombs) << '\n';
+    write << game.player.id;
+
+    write.close();
+}
+
 void MainWindow() {
     // Cancel Button
     SDL_Rect cancelRect = {750, 5, 40, 40};
+    SDL_Rect saveRect = {700, 5, 40, 40};
     if (SBDL::mouseInRect(cancelRect)) {
         SBDL::showTexture(cancelButton2, cancelRect);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
@@ -650,6 +730,17 @@ void MainWindow() {
         }
     } else {
         SBDL::showTexture(cancelButton1, cancelRect);
+    }
+
+    // Save button
+    if (SBDL::mouseInRect(saveRect)) {
+        SBDL::showTexture(saveButton2, saveRect);
+        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+            window = MENU;
+            SaveGame();
+        }
+    } else {
+        SBDL::showTexture(saveButton1, saveRect);
     }
 
     // string: Number of bombs left
