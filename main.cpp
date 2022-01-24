@@ -641,6 +641,17 @@ void GameOver() {
 }
 
 void MainWindow() {
+    // Cancel Button
+    SDL_Rect cancelRect = {750, 5, 40, 40};
+    if (SBDL::mouseInRect(cancelRect)) {
+        SBDL::showTexture(cancelButton2, cancelRect);
+        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+            window = MENU;
+        }
+    } else {
+        SBDL::showTexture(cancelButton1, cancelRect);
+    }
+
     // string: Number of bombs left
     Texture strBombLeft =  SBDL::createFontTexture(font, NumToStr(game.countBombs - CountFlags()) +
                                                          " Bombs left", 0, 0, 0);
@@ -723,13 +734,6 @@ void MainWindow() {
 }
 
 void InsertBombs() {
-    // Deallocating memory
-    if (game.square.bombs != nullptr) {
-        for (int i = 0; i < game.countSquareInRow; ++i)
-            delete[] game.square.bombs[i];
-        delete[] game.square.bombs;
-    }
-
     // Allocating memory
     game.square.bombs = new SDL_Rect**[game.countSquareInRow];
     for (int i = 0; i < game.countSquareInRow; ++i)
@@ -758,33 +762,6 @@ void InsertBombs() {
 
 void CountOfBombsNearSquare() {
     int sum[20][20] = {0};
-
-    /**
-     * Deallocating memory
-     * For first time avoid deallocate
-     */
-    if (game.square.number1 != nullptr) {
-        for (int i = 0; i < game.countSquareInRow; ++i) {
-            delete[] game.square.number0[i];
-            delete[] game.square.number1[i];
-            delete[] game.square.number2[i];
-            delete[] game.square.number3[i];
-            delete[] game.square.number4[i];
-            delete[] game.square.number5[i];
-            delete[] game.square.number6[i];
-            delete[] game.square.number7[i];
-            delete[] game.square.number8[i];
-        }
-        delete[] game.square.number0;
-        delete[] game.square.number1;
-        delete[] game.square.number2;
-        delete[] game.square.number3;
-        delete[] game.square.number4;
-        delete[] game.square.number5;
-        delete[] game.square.number6;
-        delete[] game.square.number7;
-        delete[] game.square.number8;
-    }
 
     // Allocating memory
     game.square.number0 = new SDL_Rect**[game.countSquareInRow];
@@ -921,6 +898,43 @@ void CountOfBombsNearSquare() {
     }
 }
 
+void DeallocateMemory() {
+    /**
+    *  Deallocating memories
+    *  For first time avoid deallocate
+    */
+    if (game.square.backgroundSquare != nullptr) {
+        for (int i = 0; i < game.countSquareInRow; ++i) {
+            delete[] game.square.backgroundSquare[i];
+            delete[] game.square.coverSquare[i];
+            delete[] game.square.flag[i];
+            delete[] game.square.bombs[i];
+            delete[] game.square.number0[i];
+            delete[] game.square.number1[i];
+            delete[] game.square.number2[i];
+            delete[] game.square.number3[i];
+            delete[] game.square.number4[i];
+            delete[] game.square.number5[i];
+            delete[] game.square.number6[i];
+            delete[] game.square.number7[i];
+            delete[] game.square.number8[i];
+        }
+        delete[] game.square.backgroundSquare;
+        delete[] game.square.coverSquare;
+        delete[] game.square.flag;
+        delete[] game.square.bombs;
+        delete[] game.square.number0;
+        delete[] game.square.number1;
+        delete[] game.square.number2;
+        delete[] game.square.number3;
+        delete[] game.square.number4;
+        delete[] game.square.number5;
+        delete[] game.square.number6;
+        delete[] game.square.number7;
+        delete[] game.square.number8;
+    }
+}
+
 void DifficultySelectWindow() {
     Difficultly difficultly;
     bool buttonClicked = false;
@@ -1052,20 +1066,7 @@ void DifficultySelectWindow() {
     SBDL::freeTexture(strCountSquares);
 
     if (buttonClicked) {
-        /**
-         *  Deallocating memories
-         *  For first time avoid deallocate
-         */
-        if (game.square.backgroundSquare != nullptr) {
-            for (int i = 0; i < game.countSquareInRow; ++i) {
-                delete[] game.square.backgroundSquare[i];
-                delete[] game.square.coverSquare[i];
-                delete[] game.square.flag[i];
-            }
-            delete[] game.square.backgroundSquare;
-            delete[] game.square.coverSquare;
-            delete[] game.square.flag;
-        }
+        DeallocateMemory();
 
         // Hard mode
         if (difficultly == HARD) {
@@ -1073,19 +1074,19 @@ void DifficultySelectWindow() {
             game.countBombs = 96;
         }
 
-            // Normal mode
+        // Normal mode
         else if (difficultly == NORMAL) {
             game.countSquareInRow = 12;
             game.countBombs = 28;
         }
 
-            // Easy mode
+        // Easy mode
         else if (difficultly == EASY) {
             game.countSquareInRow = 5;
             game.countBombs = 4;
         }
 
-            // Custom mode
+        // Custom mode
         else if (difficultly == CUSTOM) {
             game.countSquareInRow = StrToNum(s_countSquares);
             game.countBombs       = StrToNum(s_countBombs);
@@ -1339,8 +1340,7 @@ void ChangeNameWindow(Player *p_player, int countPlayers) {
 
 }
 
-int main()
-{
+int main() {
     // Reading players from file
     std::ifstream text;
     std::string line;
