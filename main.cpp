@@ -389,204 +389,6 @@ void DeleteSaveSlot(Save *&p_saveSlot, int index) {
     p_saveSlot = CollectSaveSlots();
 }
 
-void LoginWindow(Player *&p_player, int &countPlayers) {
-
-    SDL_Rect idFieldRect = {10, 10, 250, 70};
-    SDL_Rect cursorRect = {15, 40, 15, 20};
-    SDL_Rect playerList = {10, 100, 250, 150};
-    SDL_Rect enterButtonRect = {300, 200, 50, 50};
-    SDL_Rect addUserButtonRect = {400, 400, 50, 50};
-    SDL_Rect searchButtonRect = {100, 400, 50, 50};
-    SDL_Rect trashButtonRect = {250, 350, 30, 30};
-
-    static Texture logInPrompt;
-
-    static std::string s_idPlayer = " ";
-    static bool s_logInActive = false;
-    Keyboard(s_idPlayer, false);
-
-    // Clicked on add user button
-    if (SBDL::mouseInRect(addUserButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-        bool idExist = false;
-        for (int i = 0; i < countPlayers; ++i) {
-            if (s_idPlayer == (p_player + i)->id) {
-                idExist = true;
-                break;
-            }
-        }
-
-        if (!idExist) {
-            auto *temp = new Player[countPlayers+1];
-
-            for (int i = 0; i < countPlayers; ++i) {
-                (temp + i)->score = (p_player + i)->score;
-                (temp + i)->id    = (p_player + i)->id;
-            }
-
-            (temp + countPlayers)->score = "0";
-            (temp + countPlayers)->id    = s_idPlayer;
-
-            delete[] p_player;
-            p_player = temp;
-
-            // Writing on a text file
-            std::ofstream text ("player.txt");
-
-            text << ++countPlayers << '\n';
-            for (int i = 0; i < countPlayers; ++i) {
-                text << (p_player + i)->score << '\n';
-                text << (p_player + i)->id << '\n';
-            }
-
-            text.close();
-
-            SBDL::freeTexture(logInPrompt);
-            logInPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
-
-            game.player.id = s_idPlayer;
-            game.player.score = "0";
-            s_logInActive = true;
-            s_idPlayer = " ";
-            s_idPlayer.shrink_to_fit();
-        }
-    }
-
-    // Clicked on trash button
-    else if (SBDL::mouseInRect(trashButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-        bool idExist = false;
-        int idIndex;
-        for (int i = 0; i < countPlayers; ++i) {
-            if (s_idPlayer == (p_player + i)->id) {
-                idExist = true;
-                idIndex = i;
-                break;
-            }
-        }
-
-        if (idExist) {
-            auto *temp = new Player[countPlayers-1];
-
-            for (int i = 0; i < countPlayers-1; ++i) {
-                if (i >= idIndex) {
-                    (temp + i)->score = (p_player + i + 1)-> score;
-                    (temp + i)->id    = (p_player + i + 1)-> id;
-
-                } else {
-                    (temp + i)->score = (p_player + i)-> score;
-                    (temp + i)->id    = (p_player + i)-> id;
-                }
-            }
-
-            delete[] p_player;
-            p_player = temp;
-
-            // Writing on a text file
-            std::ofstream text ("player.txt");
-
-            text << --countPlayers << '\n';
-            for (int i = 0; i < countPlayers; ++i) {
-                text << (p_player + i)->score << '\n';
-                text << (p_player + i)->id << '\n';
-            }
-
-            text.close();
-
-            if (s_idPlayer == game.player.id) {
-                s_logInActive = false;
-                SBDL::freeTexture(logInPrompt);
-                logInPrompt = SBDL::createFontTexture(font, " ", 255, 0, 0);
-            }
-
-            s_idPlayer = " ";
-            s_idPlayer.shrink_to_fit();
-            s_logInActive = false;
-        }
-    }
-
-    // Clicked on search button
-    else if (SBDL::mouseInRect(searchButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-        bool idExist = false;
-        int i;
-        for (i = 0; i < countPlayers; ++i) {
-            if (s_idPlayer == (p_player + i)->id) {
-                idExist = true;
-                break;
-            }
-        }
-
-        if (idExist) {
-            SBDL::freeTexture(logInPrompt);
-            logInPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
-
-            game.player.id = s_idPlayer;
-            game.player.score = "0";
-            s_logInActive = true;
-            s_idPlayer = " ";
-            s_idPlayer.shrink_to_fit();
-        }
-    }
-
-    // Clicked on enter button
-    else if (SBDL::mouseInRect(enterButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED) &&
-             s_logInActive) {
-
-        window = MENU;
-        s_logInActive = false;
-        s_idPlayer = " ";
-        s_idPlayer.shrink_to_fit();
-    }
-
-    // Draw Rectangles
-    SBDL::drawRectangle(idFieldRect,199, 255, 254);
-    SBDL::drawRectangle(playerList,199, 255, 254);
-
-    // Cursor
-    if (SBDL::getTime() / 1000 % 2 == 0)
-        SBDL::showTexture(cursor, cursorRect);
-
-    // Enter Button
-    if (SBDL::mouseInRect(enterButtonRect))
-        SBDL::showTexture(enterButton2, enterButtonRect);
-    else
-        SBDL::showTexture(enterButton1, enterButtonRect);
-
-    if (!s_logInActive)
-        SBDL::drawRectangle(enterButtonRect, 255, 255, 255, 170);
-
-    // ID inputting string
-    Texture strID = SBDL::createFontTexture(font, s_idPlayer, 0, 0, 0);
-    SBDL::showTexture(strID, 400, 50);
-    SBDL::freeTexture(strID);
-
-    // Log in prompt
-    if (s_logInActive) {
-        SBDL::showTexture(logInPrompt, 5, 300);
-    }
-
-    // Add User Button
-    if (SBDL::mouseInRect(addUserButtonRect))
-        SBDL::showTexture(addUserButton2, addUserButtonRect);
-    else
-        SBDL::showTexture(addUserButton1, addUserButtonRect);
-
-    // Trash Button
-    if (SBDL::mouseInRect(trashButtonRect))
-        SBDL::showTexture(trashButton2, trashButtonRect);
-    else
-        SBDL::showTexture(trashButton1, trashButtonRect);
-
-    // Search button
-    if (SBDL::mouseInRect(searchButtonRect))
-        SBDL::showTexture(searchButton2, searchButtonRect);
-    else
-        SBDL::showTexture(searchButton1, searchButtonRect);
-
-    // Add Player string
-    Texture strAddPlayer = SBDL::createFontTexture(font, "Add Player", 136, 184, 147);
-    SBDL::showTexture(strAddPlayer, 5, 10);
-    SBDL::freeTexture(strAddPlayer);
-}
-
 int CountFlags() {
     int result = 0;
     for (int i = 0; i < game.countSquareInRow; ++i) {
@@ -771,6 +573,478 @@ void SaveGame() {
     write.close();
 }
 
+void InsertBombs() {
+    for (int i = 0; i < game.countBombs; ++i) {
+        int row = rand() % game.countSquareInRow;
+        int column = rand() % game.countSquareInRow;
+
+        // Avoiding duplicate random number
+        if (game.square.bombs[row][column] != nullptr) {
+            --i;
+            continue;
+        }
+
+        // Assigning the memory address of Rect
+        game.square.bombs[row][column] = &game.square.backgroundSquare[row][column];
+    }
+}
+
+void CountOfBombsNearSquare() {
+    int sum[20][20] = {0};
+
+    /**
+     *  ===row1===
+     *  |        |
+     *  4        2
+     *  |        |
+     *  ===row3===
+     *
+     */
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            bool checkRow1 = true;
+            bool checkRow2 = true;
+            bool checkRow3 = true;
+            bool checkRow4 = true;
+
+            // Bomb in this square?
+            if (game.square.bombs[i][j] != nullptr) {
+                if (i-1 < 0)
+                    checkRow1 = false;
+                else
+                    ++sum[i-1][j];
+
+                if (i+1 >= game.countSquareInRow)
+                    checkRow3 = false;
+                else
+                    ++sum[i+1][j];
+
+                if (j-1 < 0)
+                    checkRow4 = false;
+                else
+                    ++sum[i][j-1];
+
+                if (j+1 >= game.countSquareInRow)
+                    checkRow2 = false;
+                else
+                    ++sum[i][j+1];
+
+                // Corner squares
+                if (checkRow1 && checkRow4)
+                    ++sum[i-1][j-1];
+                if (checkRow1 && checkRow2)
+                    ++sum[i-1][j+1];
+                if (checkRow2 && checkRow3)
+                    ++sum[i+1][j+1];
+                if (checkRow3 && checkRow4)
+                    ++sum[i+1][j-1];
+            }
+        }
+    }
+
+    // Setting bomb squares to 0
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            if (game.square.bombs[i][j] != nullptr)
+                sum[i][j] = -1;
+        }
+    }
+
+    // Assigning square address
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            if (sum[i][j] == 0) {
+                game.square.number0[i][j] = &game.square.backgroundSquare[i][j];
+            }
+            else if (sum[i][j] == 1) {
+                game.square.number1[i][j] = &game.square.backgroundSquare[i][j];
+            }
+
+            else if (sum[i][j] == 2) {
+                game.square.number2[i][j] = &game.square.backgroundSquare[i][j];
+            }
+
+            else if (sum[i][j] == 3) {
+                game.square.number3[i][j] = &game.square.backgroundSquare[i][j];
+            }
+
+            else if (sum[i][j] == 4) {
+                game.square.number4[i][j] = &game.square.backgroundSquare[i][j];
+            }
+
+            else if (sum[i][j] == 5) {
+                game.square.number5[i][j] = &game.square.backgroundSquare[i][j];
+            }
+
+            else if (sum[i][j] == 6) {
+                game.square.number6[i][j] = &game.square.backgroundSquare[i][j];
+            }
+
+            else if (sum[i][j] == 7) {
+                game.square.number7[i][j] = &game.square.backgroundSquare[i][j];
+            }
+
+            else if (sum[i][j] == 8) {
+                game.square.number8[i][j] = &game.square.backgroundSquare[i][j];
+            }
+        }
+    }
+}
+
+void DeallocateGameMemory() {
+    /**
+    *  Deallocating memories
+    *  For first time avoid deallocate
+    */
+    if (game.square.backgroundSquare != nullptr) {
+        for (int i = 0; i < game.countSquareInRow; ++i) {
+            delete[] game.square.backgroundSquare[i];
+            delete[] game.square.coverSquare[i];
+            delete[] game.square.flag[i];
+            delete[] game.square.bombs[i];
+            delete[] game.square.number0[i];
+            delete[] game.square.number1[i];
+            delete[] game.square.number2[i];
+            delete[] game.square.number3[i];
+            delete[] game.square.number4[i];
+            delete[] game.square.number5[i];
+            delete[] game.square.number6[i];
+            delete[] game.square.number7[i];
+            delete[] game.square.number8[i];
+        }
+        delete[] game.square.backgroundSquare;
+        delete[] game.square.coverSquare;
+        delete[] game.square.flag;
+        delete[] game.square.bombs;
+        delete[] game.square.number0;
+        delete[] game.square.number1;
+        delete[] game.square.number2;
+        delete[] game.square.number3;
+        delete[] game.square.number4;
+        delete[] game.square.number5;
+        delete[] game.square.number6;
+        delete[] game.square.number7;
+        delete[] game.square.number8;
+    }
+}
+
+void AllocateGameMemory() {
+    game.square.backgroundSquare = new SDL_Rect*[game.countSquareInRow];
+    game.square.coverSquare = new SDL_Rect**[game.countSquareInRow];
+    game.square.bombs = new SDL_Rect**[game.countSquareInRow];
+    game.square.flag = new SDL_Rect**[game.countSquareInRow];
+    game.square.number0 = new SDL_Rect**[game.countSquareInRow];
+    game.square.number1 = new SDL_Rect**[game.countSquareInRow];
+    game.square.number2 = new SDL_Rect**[game.countSquareInRow];
+    game.square.number3 = new SDL_Rect**[game.countSquareInRow];
+    game.square.number4 = new SDL_Rect**[game.countSquareInRow];
+    game.square.number5 = new SDL_Rect**[game.countSquareInRow];
+    game.square.number6 = new SDL_Rect**[game.countSquareInRow];
+    game.square.number7 = new SDL_Rect**[game.countSquareInRow];
+    game.square.number8 = new SDL_Rect**[game.countSquareInRow];
+
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        game.square.backgroundSquare[i] = new SDL_Rect[game.countSquareInRow];
+        game.square.coverSquare[i] = new SDL_Rect*[game.countSquareInRow];
+        game.square.bombs[i] = new SDL_Rect*[game.countSquareInRow];
+        game.square.flag[i] = new SDL_Rect*[game.countSquareInRow];
+        game.square.number0[i] = new SDL_Rect*[game.countSquareInRow];
+        game.square.number1[i] = new SDL_Rect*[game.countSquareInRow];
+        game.square.number2[i] = new SDL_Rect*[game.countSquareInRow];
+        game.square.number3[i] = new SDL_Rect*[game.countSquareInRow];
+        game.square.number4[i] = new SDL_Rect*[game.countSquareInRow];
+        game.square.number5[i] = new SDL_Rect*[game.countSquareInRow];
+        game.square.number6[i] = new SDL_Rect*[game.countSquareInRow];
+        game.square.number7[i] = new SDL_Rect*[game.countSquareInRow];
+        game.square.number8[i] = new SDL_Rect*[game.countSquareInRow];
+    }
+
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            game.square.number0[i][j] = nullptr;
+            game.square.number1[i][j] = nullptr;
+            game.square.number2[i][j] = nullptr;
+            game.square.number3[i][j] = nullptr;
+            game.square.number4[i][j] = nullptr;
+            game.square.number5[i][j] = nullptr;
+            game.square.number6[i][j] = nullptr;
+            game.square.number7[i][j] = nullptr;
+            game.square.number8[i][j] = nullptr;
+            game.square.flag[i][j] = nullptr;
+            game.square.bombs[i][j] = nullptr;
+        }
+    }
+}
+
+void CreateGameBoard() {
+    int startPoint_x = 20, startPoint_y = 3;
+    // Creating squares
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            game.square.backgroundSquare[i][j].x = startPoint_x;
+            game.square.backgroundSquare[i][j].y = startPoint_y;
+            game.square.backgroundSquare[i][j].w = 25;
+            game.square.backgroundSquare[i][j].h = 25;
+
+            // Copy square address
+            game.square.coverSquare[i][j] = &game.square.backgroundSquare[i][j];
+
+            startPoint_x += 28;
+        }
+        startPoint_x = 20;
+        startPoint_y += 28;
+    }
+}
+
+void LoadGame(Save *p_loadThis) {
+    DeallocateGameMemory();
+    game.countSquareInRow = StrToNum(p_loadThis->countSquaresInRow);
+    game.countBombs = StrToNum(p_loadThis->countBombs);
+    AllocateGameMemory();
+    CreateGameBoard();
+
+    for (int i = 0, k = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j, ++k) {
+            if (p_loadThis->bomb[k] == '1')
+                game.square.bombs[i][j] = &game.square.backgroundSquare[i][j];
+            else
+                game.square.bombs[i][j] = nullptr;
+        }
+    }
+
+    for (int i = 0, k = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j, ++k) {
+            if (p_loadThis->flag[k] == '1')
+                game.square.flag[i][j] = &game.square.backgroundSquare[i][j];
+            else
+                game.square.flag[i][j] = nullptr;
+        }
+    }
+
+    for (int i = 0, k = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j, ++k) {
+            if (p_loadThis->coverSquares[k] == '0')
+                game.square.coverSquare[i][j] = nullptr;
+        }
+    }
+
+    CountOfBombsNearSquare();
+}
+
+void Swap(Player &a, Player &b) {
+    Player temp = b;
+    b = a;
+    a = temp;
+}
+
+void BubbleSort(Player *a, const int SIZE) {
+    for (int i = 0; i < SIZE - 1; ++i) {
+        for (int j = 0; j < SIZE - i - 1; ++j) {
+            if (StrToNum((a+j)->score) < StrToNum((a+j+1)->score)) {
+                Swap(a[j], a[j+1]);
+            }
+        }
+    }
+}
+
+void LoginWindow(Player *&p_player, int &countPlayers) {
+
+    SDL_Rect idFieldRect = {10, 10, 250, 70};
+    SDL_Rect cursorRect = {15, 40, 15, 20};
+    SDL_Rect playerList = {10, 100, 250, 150};
+    SDL_Rect enterButtonRect = {300, 200, 50, 50};
+    SDL_Rect addUserButtonRect = {400, 400, 50, 50};
+    SDL_Rect searchButtonRect = {100, 400, 50, 50};
+    SDL_Rect trashButtonRect = {250, 350, 30, 30};
+
+    static Texture logInPrompt;
+
+    static std::string s_idPlayer = " ";
+    static bool s_logInActive = false;
+    Keyboard(s_idPlayer, false);
+
+    // Clicked on add user button
+    if (SBDL::mouseInRect(addUserButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+        bool idExist = false;
+        for (int i = 0; i < countPlayers; ++i) {
+            if (s_idPlayer == (p_player + i)->id) {
+                idExist = true;
+                break;
+            }
+        }
+
+        if (!idExist) {
+            auto *temp = new Player[countPlayers+1];
+
+            for (int i = 0; i < countPlayers; ++i) {
+                (temp + i)->score = (p_player + i)->score;
+                (temp + i)->id    = (p_player + i)->id;
+            }
+
+            (temp + countPlayers)->score = "0";
+            (temp + countPlayers)->id    = s_idPlayer;
+
+            delete[] p_player;
+            p_player = temp;
+
+            // Writing on a text file
+            std::ofstream text ("player.txt");
+
+            text << ++countPlayers << '\n';
+            for (int i = 0; i < countPlayers; ++i) {
+                text << (p_player + i)->score << '\n';
+                text << (p_player + i)->id << '\n';
+            }
+
+            text.close();
+
+            SBDL::freeTexture(logInPrompt);
+            logInPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
+
+            game.player.id = s_idPlayer;
+            game.player.score = "0";
+            s_logInActive = true;
+            s_idPlayer = " ";
+            s_idPlayer.shrink_to_fit();
+        }
+    }
+
+        // Clicked on trash button
+    else if (SBDL::mouseInRect(trashButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+        bool idExist = false;
+        int idIndex;
+        for (int i = 0; i < countPlayers; ++i) {
+            if (s_idPlayer == (p_player + i)->id) {
+                idExist = true;
+                idIndex = i;
+                break;
+            }
+        }
+
+        if (idExist) {
+            auto *temp = new Player[countPlayers-1];
+
+            for (int i = 0; i < countPlayers-1; ++i) {
+                if (i >= idIndex) {
+                    (temp + i)->score = (p_player + i + 1)-> score;
+                    (temp + i)->id    = (p_player + i + 1)-> id;
+
+                } else {
+                    (temp + i)->score = (p_player + i)-> score;
+                    (temp + i)->id    = (p_player + i)-> id;
+                }
+            }
+
+            delete[] p_player;
+            p_player = temp;
+
+            // Writing on a text file
+            std::ofstream text ("player.txt");
+
+            text << --countPlayers << '\n';
+            for (int i = 0; i < countPlayers; ++i) {
+                text << (p_player + i)->score << '\n';
+                text << (p_player + i)->id << '\n';
+            }
+
+            text.close();
+
+            if (s_idPlayer == game.player.id) {
+                s_logInActive = false;
+                SBDL::freeTexture(logInPrompt);
+                logInPrompt = SBDL::createFontTexture(font, " ", 255, 0, 0);
+            }
+
+            s_idPlayer = " ";
+            s_idPlayer.shrink_to_fit();
+            s_logInActive = false;
+        }
+    }
+
+        // Clicked on search button
+    else if (SBDL::mouseInRect(searchButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+        bool idExist = false;
+        int i;
+        for (i = 0; i < countPlayers; ++i) {
+            if (s_idPlayer == (p_player + i)->id) {
+                idExist = true;
+                break;
+            }
+        }
+
+        if (idExist) {
+            SBDL::freeTexture(logInPrompt);
+            logInPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
+
+            game.player.id = s_idPlayer;
+            game.player.score = "0";
+            s_logInActive = true;
+            s_idPlayer = " ";
+            s_idPlayer.shrink_to_fit();
+        }
+    }
+
+        // Clicked on enter button
+    else if (SBDL::mouseInRect(enterButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED) &&
+             s_logInActive) {
+
+        window = MENU;
+        s_logInActive = false;
+        s_idPlayer = " ";
+        s_idPlayer.shrink_to_fit();
+    }
+
+    // Draw Rectangles
+    SBDL::drawRectangle(idFieldRect,199, 255, 254);
+    SBDL::drawRectangle(playerList,199, 255, 254);
+
+    // Cursor
+    if (SBDL::getTime() / 1000 % 2 == 0)
+        SBDL::showTexture(cursor, cursorRect);
+
+    // Enter Button
+    if (SBDL::mouseInRect(enterButtonRect))
+        SBDL::showTexture(enterButton2, enterButtonRect);
+    else
+        SBDL::showTexture(enterButton1, enterButtonRect);
+
+    if (!s_logInActive)
+        SBDL::drawRectangle(enterButtonRect, 255, 255, 255, 170);
+
+    // ID inputting string
+    Texture strID = SBDL::createFontTexture(font, s_idPlayer, 0, 0, 0);
+    SBDL::showTexture(strID, 400, 50);
+    SBDL::freeTexture(strID);
+
+    // Log in prompt
+    if (s_logInActive) {
+        SBDL::showTexture(logInPrompt, 5, 300);
+    }
+
+    // Add User Button
+    if (SBDL::mouseInRect(addUserButtonRect))
+        SBDL::showTexture(addUserButton2, addUserButtonRect);
+    else
+        SBDL::showTexture(addUserButton1, addUserButtonRect);
+
+    // Trash Button
+    if (SBDL::mouseInRect(trashButtonRect))
+        SBDL::showTexture(trashButton2, trashButtonRect);
+    else
+        SBDL::showTexture(trashButton1, trashButtonRect);
+
+    // Search button
+    if (SBDL::mouseInRect(searchButtonRect))
+        SBDL::showTexture(searchButton2, searchButtonRect);
+    else
+        SBDL::showTexture(searchButton1, searchButtonRect);
+
+    // Add Player string
+    Texture strAddPlayer = SBDL::createFontTexture(font, "Add Player", 136, 184, 147);
+    SBDL::showTexture(strAddPlayer, 5, 10);
+    SBDL::freeTexture(strAddPlayer);
+}
+
 void MainWindow() {
     // Cancel Button
     SDL_Rect cancelRect = {750, 5, 40, 40};
@@ -873,208 +1147,6 @@ void MainWindow() {
             if (game.square.flag[i][j] != nullptr)
                 SBDL::showTexture(flag, *game.square.flag[i][j]);
         }
-    }
-}
-
-void InsertBombs() {
-    // Allocating memory
-    game.square.bombs = new SDL_Rect**[game.countSquareInRow];
-    for (int i = 0; i < game.countSquareInRow; ++i)
-        game.square.bombs[i] = new SDL_Rect*[game.countSquareInRow];
-
-    for (int i = 0; i < game.countSquareInRow; ++i) {
-        for (int j = 0; j < game.countSquareInRow; ++j) {
-            game.square.bombs[i][j] = nullptr;
-        }
-    }
-
-    for (int i = 0; i < game.countBombs; ++i) {
-        int row = rand() % game.countSquareInRow;
-        int column = rand() % game.countSquareInRow;
-
-        // Avoiding duplicate random number
-        if (game.square.bombs[row][column] != nullptr) {
-            --i;
-            continue;
-        }
-
-        // Assigning the memory address of Rect
-        game.square.bombs[row][column] = &game.square.backgroundSquare[row][column];
-    }
-}
-
-void CountOfBombsNearSquare() {
-    int sum[20][20] = {0};
-
-    // Allocating memory
-    game.square.number0 = new SDL_Rect**[game.countSquareInRow];
-    game.square.number1 = new SDL_Rect**[game.countSquareInRow];
-    game.square.number2 = new SDL_Rect**[game.countSquareInRow];
-    game.square.number3 = new SDL_Rect**[game.countSquareInRow];
-    game.square.number4 = new SDL_Rect**[game.countSquareInRow];
-    game.square.number5 = new SDL_Rect**[game.countSquareInRow];
-    game.square.number6 = new SDL_Rect**[game.countSquareInRow];
-    game.square.number7 = new SDL_Rect**[game.countSquareInRow];
-    game.square.number8 = new SDL_Rect**[game.countSquareInRow];
-    for (int i = 0; i < game.countSquareInRow; ++i) {
-        game.square.number0[i] = new SDL_Rect*[game.countSquareInRow];
-        game.square.number1[i] = new SDL_Rect*[game.countSquareInRow];
-        game.square.number2[i] = new SDL_Rect*[game.countSquareInRow];
-        game.square.number3[i] = new SDL_Rect*[game.countSquareInRow];
-        game.square.number4[i] = new SDL_Rect*[game.countSquareInRow];
-        game.square.number5[i] = new SDL_Rect*[game.countSquareInRow];
-        game.square.number6[i] = new SDL_Rect*[game.countSquareInRow];
-        game.square.number7[i] = new SDL_Rect*[game.countSquareInRow];
-        game.square.number8[i] = new SDL_Rect*[game.countSquareInRow];
-    }
-
-    for (int i = 0; i < game.countSquareInRow; ++i) {
-        for (int j = 0; j < game.countSquareInRow; ++j) {
-            game.square.number0[i][j] = nullptr;
-            game.square.number1[i][j] = nullptr;
-            game.square.number2[i][j] = nullptr;
-            game.square.number3[i][j] = nullptr;
-            game.square.number4[i][j] = nullptr;
-            game.square.number5[i][j] = nullptr;
-            game.square.number6[i][j] = nullptr;
-            game.square.number7[i][j] = nullptr;
-            game.square.number8[i][j] = nullptr;
-        }
-    }
-    /**
-     *  ===row1===
-     *  |        |
-     *  4        2
-     *  |        |
-     *  ===row3===
-     *
-     */
-
-    for (int i = 0; i < game.countSquareInRow; ++i) {
-        for (int j = 0; j < game.countSquareInRow; ++j) {
-            bool checkRow1 = true;
-            bool checkRow2 = true;
-            bool checkRow3 = true;
-            bool checkRow4 = true;
-
-            // Bomb in this square?
-            if (game.square.bombs[i][j] != nullptr) {
-                if (i-1 < 0)
-                    checkRow1 = false;
-                else
-                    ++sum[i-1][j];
-
-                if (i+1 >= game.countSquareInRow)
-                    checkRow3 = false;
-                else
-                    ++sum[i+1][j];
-
-                if (j-1 < 0)
-                    checkRow4 = false;
-                else
-                    ++sum[i][j-1];
-
-                if (j+1 >= game.countSquareInRow)
-                    checkRow2 = false;
-                else
-                    ++sum[i][j+1];
-
-                // Corner squares
-                if (checkRow1 && checkRow4)
-                    ++sum[i-1][j-1];
-                if (checkRow1 && checkRow2)
-                    ++sum[i-1][j+1];
-                if (checkRow2 && checkRow3)
-                    ++sum[i+1][j+1];
-                if (checkRow3 && checkRow4)
-                    ++sum[i+1][j-1];
-            }
-        }
-    }
-
-    // Setting bomb squares to 0
-    for (int i = 0; i < game.countSquareInRow; ++i) {
-        for (int j = 0; j < game.countSquareInRow; ++j) {
-            if (game.square.bombs[i][j] != nullptr)
-                sum[i][j] = -1;
-        }
-    }
-
-    // Assigning square address
-    for (int i = 0; i < game.countSquareInRow; ++i) {
-        for (int j = 0; j < game.countSquareInRow; ++j) {
-            if (sum[i][j] == 0) {
-                game.square.number0[i][j] = &game.square.backgroundSquare[i][j];
-            }
-            else if (sum[i][j] == 1) {
-                game.square.number1[i][j] = &game.square.backgroundSquare[i][j];
-            }
-
-            else if (sum[i][j] == 2) {
-                game.square.number2[i][j] = &game.square.backgroundSquare[i][j];
-            }
-
-            else if (sum[i][j] == 3) {
-                game.square.number3[i][j] = &game.square.backgroundSquare[i][j];
-            }
-
-            else if (sum[i][j] == 4) {
-                game.square.number4[i][j] = &game.square.backgroundSquare[i][j];
-            }
-
-            else if (sum[i][j] == 5) {
-                game.square.number5[i][j] = &game.square.backgroundSquare[i][j];
-            }
-
-            else if (sum[i][j] == 6) {
-                game.square.number6[i][j] = &game.square.backgroundSquare[i][j];
-            }
-
-            else if (sum[i][j] == 7) {
-                game.square.number7[i][j] = &game.square.backgroundSquare[i][j];
-            }
-
-            else if (sum[i][j] == 8) {
-                game.square.number8[i][j] = &game.square.backgroundSquare[i][j];
-            }
-        }
-    }
-}
-
-void DeallocateMemory() {
-    /**
-    *  Deallocating memories
-    *  For first time avoid deallocate
-    */
-    if (game.square.backgroundSquare != nullptr) {
-        for (int i = 0; i < game.countSquareInRow; ++i) {
-            delete[] game.square.backgroundSquare[i];
-            delete[] game.square.coverSquare[i];
-            delete[] game.square.flag[i];
-            delete[] game.square.bombs[i];
-            delete[] game.square.number0[i];
-            delete[] game.square.number1[i];
-            delete[] game.square.number2[i];
-            delete[] game.square.number3[i];
-            delete[] game.square.number4[i];
-            delete[] game.square.number5[i];
-            delete[] game.square.number6[i];
-            delete[] game.square.number7[i];
-            delete[] game.square.number8[i];
-        }
-        delete[] game.square.backgroundSquare;
-        delete[] game.square.coverSquare;
-        delete[] game.square.flag;
-        delete[] game.square.bombs;
-        delete[] game.square.number0;
-        delete[] game.square.number1;
-        delete[] game.square.number2;
-        delete[] game.square.number3;
-        delete[] game.square.number4;
-        delete[] game.square.number5;
-        delete[] game.square.number6;
-        delete[] game.square.number7;
-        delete[] game.square.number8;
     }
 }
 
@@ -1209,7 +1281,7 @@ void DifficultySelectWindow() {
     SBDL::freeTexture(strCountSquares);
 
     if (buttonClicked) {
-        DeallocateMemory();
+        DeallocateGameMemory();
 
         // Hard mode
         if (difficultly == HARD) {
@@ -1235,61 +1307,11 @@ void DifficultySelectWindow() {
             game.countBombs       = StrToNum(s_countBombs);
         }
 
-        // Allocating memory
-        game.square.backgroundSquare = new SDL_Rect*[game.countSquareInRow];
-        game.square.coverSquare = new SDL_Rect**[game.countSquareInRow];
-        game.square.flag = new SDL_Rect**[game.countSquareInRow];
-        for (int i = 0; i < game.countSquareInRow; ++i) {
-            game.square.backgroundSquare[i] = new SDL_Rect[game.countSquareInRow];
-            game.square.coverSquare[i] = new SDL_Rect*[game.countSquareInRow];
-            game.square.flag[i] = new SDL_Rect*[game.countSquareInRow];
-        }
-
-        for (int i = 0; i < game.countSquareInRow; ++i) {
-            for (int j = 0; j < game.countSquareInRow; ++j) {
-                game.square.flag[i][j] = nullptr;
-            }
-        }
-
-        int startx = 20, starty = 3;
-
-        // Creating squares
-        for (int i = 0; i < game.countSquareInRow; ++i) {
-            for (int j = 0; j < game.countSquareInRow; ++j) {
-                game.square.backgroundSquare[i][j].x = startx;
-                game.square.backgroundSquare[i][j].y = starty;
-                game.square.backgroundSquare[i][j].w = 25;
-                game.square.backgroundSquare[i][j].h = 25;
-
-                // Copy square address
-                game.square.coverSquare[i][j] = &game.square.backgroundSquare[i][j];
-
-                startx += 28;
-            }
-
-            startx = 20;
-            starty += 28;
-        }
-
+        AllocateGameMemory();
+        CreateGameBoard();
         InsertBombs();
         CountOfBombsNearSquare();
         window = MAIN;
-    }
-}
-
-void Swap(Player &a, Player &b) {
-    Player temp = b;
-    b = a;
-    a = temp;
-}
-
-void BubbleSort(Player *a, const int SIZE) {
-    for (int i = 0; i < SIZE - 1; ++i) {
-        for (int j = 0; j < SIZE - i - 1; ++j) {
-            if (StrToNum((a+j)->score) < StrToNum((a+j+1)->score)) {
-                Swap(a[j], a[j+1]);
-            }
-        }
     }
 }
 
@@ -1505,7 +1527,10 @@ void LoadGameWindow(Save *&p_saveSlot) {
             if (SBDL::mouseInRect(loadThisRect)) {
                 SBDL::showTexture(strLoadThis, 300, 50 + j*50);
                 if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-                    //handle
+                    window = MAIN;
+                    LoadGame(p_saveSlot + i);
+                    delete[] p_saveSlot;
+                    return;
                 }
             } else {
                 SBDL::showTexture(strLoadThis, 300, 50 + j*50);
