@@ -54,7 +54,7 @@ enum Difficultly {
 Texture checkButton1, checkButton2, enterButton1, enterButton2, arrow, addUserButton1, addUserButton2, trashButton1,
         trashButton2, cancelButton1, cancelButton2, searchButton1, searchButton2, bombTexture, number1, number2,
         number3, number4, number5, number6, number7, number8, flag, saveButton1, saveButton2;
-Font *font;
+Font *font1, *font2, *font3;
 
 void LoadTextures() {
     checkButton1 = SBDL::loadTexture("Reference/check1.png");
@@ -85,7 +85,9 @@ void LoadTextures() {
 }
 
 void LoadFonts() {
-    font = SBDL::loadFont("Reference/comic.ttf", 20);
+    font1 = SBDL::loadFont("Reference/comic.ttf", 20);
+    font2 = SBDL::loadFont("Reference/ITCKRIST.TTF", 20);
+    font3 = SBDL::loadFont("Reference/comic.ttf", 30);
 }
 
 int pow(int n, int power) {
@@ -860,13 +862,12 @@ int ReadNumberOfPlayers() {
 }
 
 void LoginWindow(Player *&p_player) {
-    SDL_Rect idFieldRect = {10, 10, 250, 70};
-    SDL_Rect arrowRect = {15, 40, 15, 20};
-    SDL_Rect playerList = {10, 100, 250, 150};
-    SDL_Rect enterButtonRect = {300, 200, 50, 50};
-    SDL_Rect addUserButtonRect = {400, 400, 50, 50};
-    SDL_Rect searchButtonRect = {100, 400, 50, 50};
-    SDL_Rect trashButtonRect = {250, 350, 30, 30};
+    SDL_Rect idFieldRect = {210, 285, 400, 70};
+    SDL_Rect arrowRect = {215, 310, 20, 20};
+    SDL_Rect searchButtonRect = {230, 375, 40, 40};
+    SDL_Rect trashButtonRect = {290, 375, 40, 40};
+    SDL_Rect addUserButtonRect = {350, 375, 40, 40};
+    SDL_Rect enterButtonRect = {410, 375, 45, 45};
 
     int countPlayers = ReadNumberOfPlayers();
     static Texture loginPrompt;
@@ -875,7 +876,7 @@ void LoginWindow(Player *&p_player) {
     Keyboard(s_idPlayer);
 
     // Clicked on add user button
-    if (MOUSE_LEFT_CLICKED(addUserButtonRect)) {
+    if (MOUSE_LEFT_CLICKED(addUserButtonRect) && s_idPlayer[0] != ' ') {
         bool idExist = false;
         for (int i = 0; i < countPlayers; ++i) {
             if (s_idPlayer == (p_player + i)->id) {
@@ -900,7 +901,7 @@ void LoginWindow(Player *&p_player) {
             p_player = ReadPlayers();
 
             SBDL::freeTexture(loginPrompt);
-            loginPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
+            loginPrompt = SBDL::createFontTexture(font1, "Log in as: " + s_idPlayer, 5, 117, 40);
 
             game.player.id = s_idPlayer;
             game.player.score = "0";
@@ -911,7 +912,7 @@ void LoginWindow(Player *&p_player) {
     }
 
     // Clicked on trash button
-    else if (MOUSE_LEFT_CLICKED(trashButtonRect)) {
+    else if (MOUSE_LEFT_CLICKED(trashButtonRect) && s_idPlayer[0] != ' ') {
         bool idExist = false;
         int idIndex;
         for (int i = 0; i < countPlayers; ++i) {
@@ -941,7 +942,7 @@ void LoginWindow(Player *&p_player) {
             if (s_idPlayer == game.player.id) {
                 s_loginActive = false;
                 SBDL::freeTexture(loginPrompt);
-                loginPrompt = SBDL::createFontTexture(font, " ", 255, 0, 0);
+                loginPrompt = SBDL::createFontTexture(font1, " ", 25, 145, 125);
             }
 
             s_idPlayer = " ";
@@ -951,7 +952,7 @@ void LoginWindow(Player *&p_player) {
     }
 
     // Clicked on search button
-    else if (MOUSE_LEFT_CLICKED(searchButtonRect)) {
+    else if (MOUSE_LEFT_CLICKED(searchButtonRect) && s_idPlayer[0] != ' ') {
         bool idExist = false;
         int i;
         for (i = 0; i < countPlayers; ++i) {
@@ -963,7 +964,7 @@ void LoginWindow(Player *&p_player) {
 
         if (idExist) {
             SBDL::freeTexture(loginPrompt);
-            loginPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
+            loginPrompt = SBDL::createFontTexture(font1, "Log in as: " + s_idPlayer, 5, 83, 117);
 
             game.player.id = s_idPlayer;
             game.player.score = "0";
@@ -983,7 +984,6 @@ void LoginWindow(Player *&p_player) {
 
     // Draw Rectangles
     SBDL::drawRectangle(idFieldRect,199, 255, 254);
-    SBDL::drawRectangle(playerList,199, 255, 254);
 
     // Arrow
     if (SBDL::getTime() / 1000 % 2 == 0)
@@ -999,14 +999,13 @@ void LoginWindow(Player *&p_player) {
         SBDL::drawRectangle(enterButtonRect, 255, 255, 255, 170);
 
     // ID inputting string
-    Texture strID = SBDL::createFontTexture(font, s_idPlayer, 0, 0, 0);
-    SBDL::showTexture(strID, 400, 50);
+    Texture strID = SBDL::createFontTexture(font1, s_idPlayer, 0, 0, 0);
+    SBDL::showTexture(strID, 240, 300);
     SBDL::freeTexture(strID);
 
     // Log in prompt
-    if (s_loginActive) {
-        SBDL::showTexture(loginPrompt, 5, 300);
-    }
+    if (s_loginActive)
+        SBDL::showTexture(loginPrompt, 480, 380);
 
     // Add User Button
     if (SBDL::mouseInRect(addUserButtonRect))
@@ -1026,10 +1025,23 @@ void LoginWindow(Player *&p_player) {
     else
         SBDL::showTexture(searchButton1, searchButtonRect);
 
-    // Add Player string
-    Texture strAddPlayer = SBDL::createFontTexture(font, "Add Player", 136, 184, 147);
-    SBDL::showTexture(strAddPlayer, 5, 10);
+    if (s_idPlayer[0] == ' ') {
+        SBDL::drawRectangle(searchButtonRect, 255, 255, 255, 170);
+        SBDL::drawRectangle(trashButtonRect, 255, 255, 255, 170);
+        SBDL::drawRectangle(addUserButtonRect, 255, 255, 255, 170);
+    }
+
+
+    // Title Texture
+    Texture strAddPlayer = SBDL::createFontTexture(font3, "Add Player,", 136, 184, 147);
+    Texture strRemovePlayer = SBDL::createFontTexture(font3, "Remove Player,", 180, 50, 50);
+    Texture strSearchPlayer = SBDL::createFontTexture(font3, "Search Player", 50, 120, 180);
+    SBDL::showTexture(strAddPlayer, 100, 90);
+    SBDL::showTexture(strRemovePlayer, 280, 90);
+    SBDL::showTexture(strSearchPlayer, 500, 90);
     SBDL::freeTexture(strAddPlayer);
+    SBDL::freeTexture(strRemovePlayer);
+    SBDL::freeTexture(strSearchPlayer);
 }
 
 void ShowGameBoardTextures() {
@@ -1111,6 +1123,10 @@ void GameOverWindow() {
                 SBDL::drawRectangle(*game.square.coverSquare[i][j], 155, 155, 155);
         }
     }
+
+    Texture strGameOver = SBDL::createFontTexture(font2, "Game Over", 235, 64, 52);
+    SBDL::showTexture(strGameOver, 575, 200);
+    SBDL::freeTexture(strGameOver);
 }
 
 void WinGameWindow() {
@@ -1123,9 +1139,9 @@ void WinGameWindow() {
 
     ShowGameBoardTextures();
 
-    Texture strWin = SBDL::createFontTexture(font, "You Won!", 0, 125, 0);
-    Texture strScore = SBDL::createFontTexture(font, "You earned " +
-                       NumToStr(POINT) + " point", 189, 162, 11);
+    Texture strWin = SBDL::createFontTexture(font2, "You Won!", 0, 125, 0);
+    Texture strScore = SBDL::createFontTexture(font2, "You earned " +
+                                                      NumToStr(POINT) + " point", 189, 162, 11);
     SBDL::showTexture(strWin, 575, 200);
     SBDL::showTexture(strScore, 575, 250);
     SBDL::freeTexture(strWin);
@@ -1155,8 +1171,8 @@ void AddScore(Player *p_player) {
 void MainWindow(Player *p_player) {
     ShowGameBoardTextures();
     // string: Number of bombs left
-    Texture strBombLeft =  SBDL::createFontTexture(font, NumToStr(game.countBombs - CountFlags()) +
-                                                         " Bombs left", 0, 0, 0);
+    Texture strBombLeft =  SBDL::createFontTexture(font1, NumToStr(game.countBombs - CountFlags()) +
+                                                          " Bombs left", 0, 0, 0);
     SBDL::showTexture(strBombLeft, 630, 50);
     SBDL::freeTexture(strBombLeft);
 
@@ -1232,7 +1248,7 @@ void DifficultySelectWindow() {
     }
 
     // Easy Button
-    Texture strEasy = SBDL::createFontTexture(font, "Easy", 14, 158, 33);
+    Texture strEasy = SBDL::createFontTexture(font1, "Easy", 14, 158, 33);
     if (SBDL::mouseInRect(easyRect)) {
         SBDL::showTexture(strEasy, 300, 100);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
@@ -1246,7 +1262,7 @@ void DifficultySelectWindow() {
     SBDL::freeTexture(strEasy);
 
     // Normal Button
-    Texture strNormal = SBDL::createFontTexture(font, "Normal", 212, 179, 17);
+    Texture strNormal = SBDL::createFontTexture(font1, "Normal", 212, 179, 17);
     if (SBDL::mouseInRect(normalRect)) {
         SBDL::showTexture(strNormal, 300, 200);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
@@ -1260,7 +1276,7 @@ void DifficultySelectWindow() {
     SBDL::freeTexture(strNormal);
 
     // Hard Button
-    Texture strHard = SBDL::createFontTexture(font, "Hard", 189, 67, 26);
+    Texture strHard = SBDL::createFontTexture(font1, "Hard", 189, 67, 26);
     if (SBDL::mouseInRect(hardRect)) {
         SBDL::showTexture(strHard, 300, 300);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
@@ -1326,11 +1342,11 @@ void DifficultySelectWindow() {
         Keyboard(s_countSquares, true);
     }
 
-    Texture strCountBombs = SBDL::createFontTexture(font, s_countBombs, 0, 0, 0);
+    Texture strCountBombs = SBDL::createFontTexture(font1, s_countBombs, 0, 0, 0);
     SBDL::showTexture(strCountBombs, 15, 40);
     SBDL::freeTexture(strCountBombs);
 
-    Texture strCountSquares = SBDL::createFontTexture(font, s_countSquares, 0, 0, 0);
+    Texture strCountSquares = SBDL::createFontTexture(font1, s_countSquares, 0, 0, 0);
     SBDL::showTexture(strCountSquares, 500, 40);
     SBDL::freeTexture(strCountSquares);
 
@@ -1389,7 +1405,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     }
 
     // New game button
-    Texture strNewGame = SBDL::createFontTexture(font, "New Game", 14, 158, 33);
+    Texture strNewGame = SBDL::createFontTexture(font1, "New Game", 14, 158, 33);
     if (SBDL::mouseInRect(newGameRect)) {
         SBDL::showTexture(strNewGame, 300, 100);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
@@ -1402,7 +1418,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     SBDL::freeTexture(strNewGame);
 
     // load game button
-    Texture strLoadGame = SBDL::createFontTexture(font, "Load Game", 212, 179, 17);
+    Texture strLoadGame = SBDL::createFontTexture(font1, "Load Game", 212, 179, 17);
     if (SBDL::mouseInRect(loadGameRect)) {
         SBDL::showTexture(strLoadGame, 300, 200);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
@@ -1416,7 +1432,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     SBDL::freeTexture(strLoadGame);
 
     // Change name Button
-    Texture strChangeName = SBDL::createFontTexture(font, "Change Name", 189, 67, 26);
+    Texture strChangeName = SBDL::createFontTexture(font1, "Change Name", 189, 67, 26);
     if (SBDL::mouseInRect(changeNameRect)) {
         SBDL::showTexture(strChangeName, 300, 300);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
@@ -1429,7 +1445,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     SBDL::freeTexture(strChangeName);
 
     // Leaderboard Button
-    Texture strLeaderboard = SBDL::createFontTexture(font, "Leaderboard", 189, 67, 26);
+    Texture strLeaderboard = SBDL::createFontTexture(font1, "Leaderboard", 189, 67, 26);
     if (SBDL::mouseInRect(leaderboardRect)) {
         SBDL::showTexture(strLeaderboard, 300, 400);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
@@ -1445,7 +1461,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     SBDL::freeTexture(strLeaderboard);
 
     // Quit Button
-    Texture strQuit = SBDL::createFontTexture(font, "Quit", 189, 67, 26);
+    Texture strQuit = SBDL::createFontTexture(font1, "Quit", 189, 67, 26);
     if (SBDL::mouseInRect(quitRect)) {
         SBDL::showTexture(strQuit, 300, 500);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
@@ -1473,8 +1489,8 @@ void LeaderboardWindow(Player *p_player) {
 
     int count = countPlayers >= 5 ? 5 : countPlayers;
     for (int i = 0; i < count; ++i) {
-        Texture id = SBDL::createFontTexture(font, (p_player+i)->id, 0, 0, 0);
-        Texture score = SBDL::createFontTexture(font, (p_player+i)->score, 0, 0, 0);
+        Texture id = SBDL::createFontTexture(font1, (p_player + i)->id, 0, 0, 0);
+        Texture score = SBDL::createFontTexture(font1, (p_player + i)->score, 0, 0, 0);
         SBDL::showTexture(id, 10, 50 + i*50);
         SBDL::showTexture(score, 300, 50 + i*50);
         SBDL::freeTexture(id);
@@ -1545,7 +1561,7 @@ void ChangeNameWindow(Player *p_player) {
         SBDL::showTexture(arrow, arrowRect);
 
     // Show new name
-    Texture strNewName = SBDL::createFontTexture(font, s_newName, 0, 0, 0);
+    Texture strNewName = SBDL::createFontTexture(font1, s_newName, 0, 0, 0);
     SBDL::showTexture(strNewName, 15, 40);
     SBDL::freeTexture(strNewName);
 
@@ -1580,7 +1596,7 @@ void LoadGameWindow(Save *&p_saveSlot) {
         if ((p_saveSlot + i)->id == game.player.id) {
             // Load button
             SDL_Rect loadThisRect = {300, 50 + j*50, 100, 30};
-            Texture strLoadThis = SBDL::createFontTexture(font, "Load This", 14, 158, 33);
+            Texture strLoadThis = SBDL::createFontTexture(font1, "Load This", 14, 158, 33);
             if (SBDL::mouseInRect(loadThisRect)) {
                 SBDL::showTexture(strLoadThis, 300, 50 + j*50);
                 if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
@@ -1608,7 +1624,7 @@ void LoadGameWindow(Save *&p_saveSlot) {
             }
 
             // Show time of save
-            Texture strTime = SBDL::createFontTexture(font, (p_saveSlot + i)->time, 0, 0, 0);
+            Texture strTime = SBDL::createFontTexture(font1, (p_saveSlot + i)->time, 0, 0, 0);
             SBDL::showTexture(strTime, 10, 50 + j * 50);
             SBDL::freeTexture(strTime);
 
@@ -1618,7 +1634,7 @@ void LoadGameWindow(Save *&p_saveSlot) {
     }
 
     if (!showedTexture) {
-        Texture strNotFound = SBDL::createFontTexture(font, "Not Found", 0, 0, 0);
+        Texture strNotFound = SBDL::createFontTexture(font1, "Not Found", 0, 0, 0);
         SBDL::showTexture(strNotFound, 10, 50);
         SBDL::freeTexture(strNotFound);
     }
