@@ -43,7 +43,7 @@ struct Game {
 }game;
 
 enum Window {
-    LOGIN, MAIN, DIFFICULTY, MENU, LEADERBOARD, CHANGE_NAME, LOAD_GAME, GAME_OVER
+    LOGIN, MAIN, DIFFICULTY, MENU, LEADERBOARD, CHANGE_NAME, LOAD_GAME, GAME_OVER, WIN
 }window;
 
 enum Difficultly {
@@ -1110,6 +1110,17 @@ void GameOverWindow() {
     }
 }
 
+void WinGameWindow() {
+    // Removing flags
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            game.square.flag[i][j] = nullptr;
+        }
+    }
+
+    ShowGameBoardTextures();
+}
+
 void MainWindow() {
     ShowGameBoardTextures();
     // string: Number of bombs left
@@ -1132,7 +1143,7 @@ void MainWindow() {
                         }
 
                         else if (CountOpenedSquares() == pow(game.countSquareInRow, 2) - game.countBombs) {
-                            SBDL::stop();
+                            window = WIN;
                         }
                     }
 
@@ -1637,6 +1648,10 @@ int main() {
 
         else if (window == GAME_OVER) {
             GameOverWindow();
+        }
+
+        else if (window == WIN) {
+            WinGameWindow();
         }
 
         SBDL::updateRenderScreen();
