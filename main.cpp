@@ -43,7 +43,7 @@ struct Game {
 }game;
 
 enum Window {
-    LOGIN, MAIN, DIFFICULTY, MENU, LEADERBOARD, CHANGE_NAME, LOAD_GAME
+    LOGIN, MAIN, DIFFICULTY, MENU, LEADERBOARD, CHANGE_NAME, LOAD_GAME, GAME_OVER
 }window;
 
 enum Difficultly {
@@ -510,23 +510,6 @@ int OpenSquare(int row, int column) {
     return 1;
 }
 
-void GameOver() {
-    // Removing covers
-    for (int i = 0; i < game.countSquareInRow; ++i) {
-        for (int j = 0; j < game.countSquareInRow; ++j) {
-            if (game.square.bombs[i][j] != nullptr)
-                game.square.coverSquare[i][j] = nullptr;
-        }
-    }
-
-    // Removing flags
-    for (int i = 0; i < game.countSquareInRow; ++i) {
-        for (int j = 0; j < game.countSquareInRow; ++j) {
-            game.square.flag[i][j] = nullptr;
-        }
-    }
-}
-
 void SaveGame() {
     // Reading saves from file
     std::ifstream read;
@@ -867,7 +850,15 @@ Player* ReadPlayers() {
     return p_player;
 }
 
-void LoginWindow(Player *&p_player, int countPlayers) {
+int ReadNumberOfPlayers() {
+    std::ifstream read("player.txt");;
+    std::string line;
+    std::getline(read, line);
+    read.close();
+    return StrToNum(line);
+}
+
+void LoginWindow(Player *&p_player) {
     SDL_Rect idFieldRect = {10, 10, 250, 70};
     SDL_Rect cursorRect = {15, 40, 15, 20};
     SDL_Rect playerList = {10, 100, 250, 150};
@@ -876,9 +867,10 @@ void LoginWindow(Player *&p_player, int countPlayers) {
     SDL_Rect searchButtonRect = {100, 400, 50, 50};
     SDL_Rect trashButtonRect = {250, 350, 30, 30};
 
-    static Texture logInPrompt;
+    int countPlayers = ReadNumberOfPlayers();
+    static Texture loginPrompt;
     static std::string s_idPlayer = " ";
-    static bool s_logInActive = false;
+    static bool s_loginActive = false;
     Keyboard(s_idPlayer);
 
     // Clicked on add user button
@@ -905,12 +897,12 @@ void LoginWindow(Player *&p_player, int countPlayers) {
             write.close();
             p_player = ReadPlayers();
 
-            SBDL::freeTexture(logInPrompt);
-            logInPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
+            SBDL::freeTexture(loginPrompt);
+            loginPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
 
             game.player.id = s_idPlayer;
             game.player.score = "0";
-            s_logInActive = true;
+            s_loginActive = true;
             s_idPlayer = " ";
             s_idPlayer.shrink_to_fit();
         }
@@ -944,14 +936,14 @@ void LoginWindow(Player *&p_player, int countPlayers) {
             p_player = ReadPlayers();
 
             if (s_idPlayer == game.player.id) {
-                s_logInActive = false;
-                SBDL::freeTexture(logInPrompt);
-                logInPrompt = SBDL::createFontTexture(font, " ", 255, 0, 0);
+                s_loginActive = false;
+                SBDL::freeTexture(loginPrompt);
+                loginPrompt = SBDL::createFontTexture(font, " ", 255, 0, 0);
             }
 
             s_idPlayer = " ";
             s_idPlayer.shrink_to_fit();
-            s_logInActive = false;
+            s_loginActive = false;
         }
     }
 
@@ -967,21 +959,21 @@ void LoginWindow(Player *&p_player, int countPlayers) {
         }
 
         if (idExist) {
-            SBDL::freeTexture(logInPrompt);
-            logInPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
+            SBDL::freeTexture(loginPrompt);
+            loginPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
 
             game.player.id = s_idPlayer;
             game.player.score = "0";
-            s_logInActive = true;
+            s_loginActive = true;
             s_idPlayer = " ";
             s_idPlayer.shrink_to_fit();
         }
     }
 
     // Clicked on enter button
-    else if (MOUSE_LEFT_CLICKED(enterButtonRect) && s_logInActive) {
+    else if (MOUSE_LEFT_CLICKED(enterButtonRect) && s_loginActive) {
         window = MENU;
-        s_logInActive = false;
+        s_loginActive = false;
         s_idPlayer = " ";
         s_idPlayer.shrink_to_fit();
     }
@@ -1000,7 +992,7 @@ void LoginWindow(Player *&p_player, int countPlayers) {
     else
         SBDL::showTexture(enterButton1, enterButtonRect);
 
-    if (!s_logInActive)
+    if (!s_loginActive)
         SBDL::drawRectangle(enterButtonRect, 255, 255, 255, 170);
 
     // ID inputting string
@@ -1009,8 +1001,8 @@ void LoginWindow(Player *&p_player, int countPlayers) {
     SBDL::freeTexture(strID);
 
     // Log in prompt
-    if (s_logInActive) {
-        SBDL::showTexture(logInPrompt, 5, 300);
+    if (s_loginActive) {
+        SBDL::showTexture(loginPrompt, 5, 300);
     }
 
     // Add User Button
@@ -1037,7 +1029,7 @@ void LoginWindow(Player *&p_player, int countPlayers) {
     SBDL::freeTexture(strAddPlayer);
 }
 
-void MainWindow() {
+void ShowGameBoardTextures() {
     // Cancel Button
     SDL_Rect cancelRect = {750, 5, 40, 40};
     SDL_Rect saveRect = {700, 5, 40, 40};
@@ -1060,12 +1052,6 @@ void MainWindow() {
     } else {
         SBDL::showTexture(saveButton1, saveRect);
     }
-
-    // string: Number of bombs left
-    Texture strBombLeft =  SBDL::createFontTexture(font, NumToStr(game.countBombs - CountFlags()) +
-                                                         " Bombs left", 0, 0, 0);
-    SBDL::showTexture(strBombLeft, 630, 50);
-    SBDL::freeTexture(strBombLeft);
 
     // Drawing background squares
     for (int i = 0; i < game.countSquareInRow; ++i) {
@@ -1097,6 +1083,40 @@ void MainWindow() {
                 SBDL::showTexture(number8, *game.square.number8[i][j]);
         }
     }
+}
+
+void GameOverWindow() {
+    // Removing covers
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            if (game.square.bombs[i][j] != nullptr)
+                game.square.coverSquare[i][j] = nullptr;
+        }
+    }
+
+    // Removing flags
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            game.square.flag[i][j] = nullptr;
+        }
+    }
+
+    ShowGameBoardTextures();
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            if (game.square.coverSquare[i][j] != nullptr)
+                SBDL::drawRectangle(*game.square.coverSquare[i][j], 155, 155, 155);
+        }
+    }
+}
+
+void MainWindow() {
+    ShowGameBoardTextures();
+    // string: Number of bombs left
+    Texture strBombLeft =  SBDL::createFontTexture(font, NumToStr(game.countBombs - CountFlags()) +
+                                                         " Bombs left", 0, 0, 0);
+    SBDL::showTexture(strBombLeft, 630, 50);
+    SBDL::freeTexture(strBombLeft);
 
     // Handle mouse clicks and Draw rectangles that cover numbers and bombs
     for (int i = 0; i < game.countSquareInRow; ++i) {
@@ -1104,12 +1124,11 @@ void MainWindow() {
             if (game.square.coverSquare[i][j] != nullptr) {
                 if (SBDL::mouseInRect(*game.square.coverSquare[i][j])) {
                     SBDL::drawRectangle(*game.square.coverSquare[i][j], 200, 200, 200);
-
                     // Open square
                     if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED) && !IsFlagOn(i, j)) {
                         int result = OpenSquare(i, j);
                         if (result == 2) {
-                            GameOver();
+                            window = GAME_OVER;
                         }
 
                         else if (CountOpenedSquares() == pow(game.countSquareInRow, 2) - game.countBombs) {
@@ -1117,7 +1136,7 @@ void MainWindow() {
                         }
                     }
 
-                        // Flag
+                    // Flag
                     else if (SBDL::Mouse.clicked(SDL_BUTTON_RIGHT, 1, SDL_PRESSED)) {
                         if (IsFlagOn(i, j)) {
                             game.square.flag[i][j] = nullptr;
@@ -1126,9 +1145,9 @@ void MainWindow() {
                             game.square.flag[i][j] = game.square.coverSquare[i][j];
                         }
                     }
-                }
-                else
+                } else {
                     SBDL::drawRectangle(*game.square.coverSquare[i][j], 155, 155, 155);
+                }
             }
         }
     }
@@ -1307,7 +1326,8 @@ void DifficultySelectWindow() {
     }
 }
 
-void MenuWindow(Player *p_player, int countPlayers, Save *&saveSlot) {
+void MenuWindow(Player *p_player, Save *&saveSlot) {
+    int countPlayers = ReadNumberOfPlayers();
     SDL_Rect newGameRect     = {300, 100, 100, 30};
     SDL_Rect loadGameRect    = {300, 200, 100, 30};
     SDL_Rect changeNameRect  = {300, 300, 130, 30};
@@ -1395,7 +1415,8 @@ void MenuWindow(Player *p_player, int countPlayers, Save *&saveSlot) {
     SBDL::freeTexture(strQuit);
 }
 
-void LeaderboardWindow(Player *p_player, int countPlayers) {
+void LeaderboardWindow(Player *p_player) {
+    int countPlayers = ReadNumberOfPlayers();
     // Cancel button
     SDL_Rect cancelRect = {5, 5, 40, 40};
     if (SBDL::mouseInRect(cancelRect)) {
@@ -1418,7 +1439,8 @@ void LeaderboardWindow(Player *p_player, int countPlayers) {
     }
 }
 
-void ChangeNameWindow(Player *p_player, int countPlayers) {
+void ChangeNameWindow(Player *p_player) {
+    int countPlayers = ReadNumberOfPlayers();
     static std::string s_newName = " ";
     Keyboard(s_newName);
 
@@ -1559,14 +1581,6 @@ void LoadGameWindow(Save *&p_saveSlot) {
     }
 }
 
-int ReadNumberOfPlayers() {
-    std::ifstream read("player.txt");;
-    std::string line;
-    std::getline(read, line);
-    read.close();
-    return StrToNum(line);
-}
-
 void InitializeGame() {
     const int WINDOW_WIDTH = 800;
     const int WINDOW_HEIGHT = 670;
@@ -1579,7 +1593,6 @@ void InitializeGame() {
 
 int main() {
     Player *p_players = ReadPlayers();
-    int countPlayers = ReadNumberOfPlayers();
     Save* p_saveSlot = nullptr;
 
     // Preparing game window
@@ -1595,7 +1608,7 @@ int main() {
 
         //Game logic code
         if (window == LOGIN) {
-            LoginWindow(p_players, ReadNumberOfPlayers());
+            LoginWindow(p_players);
         }
 
         else if (window == MAIN) {
@@ -1607,19 +1620,23 @@ int main() {
         }
 
         else if (window == MENU) {
-            MenuWindow(p_players, ReadNumberOfPlayers(), p_saveSlot);
+            MenuWindow(p_players, p_saveSlot);
         }
 
         else if (window == LEADERBOARD) {
-            LeaderboardWindow(p_players, ReadNumberOfPlayers());
+            LeaderboardWindow(p_players);
         }
 
         else if (window == CHANGE_NAME) {
-            ChangeNameWindow(p_players, ReadNumberOfPlayers());
+            ChangeNameWindow(p_players);
         }
 
         else if (window == LOAD_GAME) {
             LoadGameWindow(p_saveSlot);
+        }
+
+        else if (window == GAME_OVER) {
+            GameOverWindow();
         }
 
         SBDL::updateRenderScreen();
