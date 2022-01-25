@@ -4,6 +4,8 @@
 #include <iostream>
 #include <ctime>
 
+#define MOUSE_LEFT_CLICKED(rect) (SBDL::mouseInRect(rect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED))
+
 struct Player {
     std::string score;
     std::string id;
@@ -333,7 +335,7 @@ void Keyboard(std::string &str, bool onlyNumber = false) {
     }
 }
 
-Save* CollectSaveSlots() {
+Save* ReadSaveSlots() {
     // Reading saves from file
     std::ifstream read;
     std::string line;
@@ -386,7 +388,7 @@ void DeleteSaveSlot(Save *&p_saveSlot, int index) {
     write.close();
 
     delete[] p_saveSlot;
-    p_saveSlot = CollectSaveSlots();
+    p_saveSlot = ReadSaveSlots();
 }
 
 int CountFlags() {
@@ -847,8 +849,25 @@ void BubbleSort(Player *a, const int SIZE) {
     }
 }
 
-void LoginWindow(Player *&p_player, int &countPlayers) {
+Player* ReadPlayers() {
+    std::ifstream read("player.txt");;
+    std::string line;
 
+    std::getline(read, line);
+
+    int countPlayers = StrToNum(line);
+
+    auto *p_player = new Player[countPlayers];
+
+    for (int i = 0; i < countPlayers; ++i) {
+        std::getline(read, (p_player + i)->score);
+        std::getline(read, (p_player + i)->id);
+    }
+    read.close();
+    return p_player;
+}
+
+void LoginWindow(Player *&p_player, int countPlayers) {
     SDL_Rect idFieldRect = {10, 10, 250, 70};
     SDL_Rect cursorRect = {15, 40, 15, 20};
     SDL_Rect playerList = {10, 100, 250, 150};
@@ -858,13 +877,12 @@ void LoginWindow(Player *&p_player, int &countPlayers) {
     SDL_Rect trashButtonRect = {250, 350, 30, 30};
 
     static Texture logInPrompt;
-
     static std::string s_idPlayer = " ";
     static bool s_logInActive = false;
-    Keyboard(s_idPlayer, false);
+    Keyboard(s_idPlayer);
 
     // Clicked on add user button
-    if (SBDL::mouseInRect(addUserButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+    if (MOUSE_LEFT_CLICKED(addUserButtonRect)) {
         bool idExist = false;
         for (int i = 0; i < countPlayers; ++i) {
             if (s_idPlayer == (p_player + i)->id) {
@@ -874,29 +892,18 @@ void LoginWindow(Player *&p_player, int &countPlayers) {
         }
 
         if (!idExist) {
-            auto *temp = new Player[countPlayers+1];
-
-            for (int i = 0; i < countPlayers; ++i) {
-                (temp + i)->score = (p_player + i)->score;
-                (temp + i)->id    = (p_player + i)->id;
-            }
-
-            (temp + countPlayers)->score = "0";
-            (temp + countPlayers)->id    = s_idPlayer;
-
-            delete[] p_player;
-            p_player = temp;
-
             // Writing on a text file
-            std::ofstream text ("player.txt");
+            std::ofstream write ("player.txt");
 
-            text << ++countPlayers << '\n';
+            write << countPlayers + 1 << '\n';
             for (int i = 0; i < countPlayers; ++i) {
-                text << (p_player + i)->score << '\n';
-                text << (p_player + i)->id << '\n';
+                write << (p_player + i)->score << '\n';
+                write << (p_player + i)->id << '\n';
             }
+            write << "0" << '\n' << s_idPlayer;
 
-            text.close();
+            write.close();
+            p_player = ReadPlayers();
 
             SBDL::freeTexture(logInPrompt);
             logInPrompt = SBDL::createFontTexture(font, "Log in as: " + s_idPlayer, 255, 0, 0);
@@ -909,8 +916,8 @@ void LoginWindow(Player *&p_player, int &countPlayers) {
         }
     }
 
-        // Clicked on trash button
-    else if (SBDL::mouseInRect(trashButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+    // Clicked on trash button
+    else if (MOUSE_LEFT_CLICKED(trashButtonRect)) {
         bool idExist = false;
         int idIndex;
         for (int i = 0; i < countPlayers; ++i) {
@@ -922,32 +929,19 @@ void LoginWindow(Player *&p_player, int &countPlayers) {
         }
 
         if (idExist) {
-            auto *temp = new Player[countPlayers-1];
-
-            for (int i = 0; i < countPlayers-1; ++i) {
-                if (i >= idIndex) {
-                    (temp + i)->score = (p_player + i + 1)-> score;
-                    (temp + i)->id    = (p_player + i + 1)-> id;
-
-                } else {
-                    (temp + i)->score = (p_player + i)-> score;
-                    (temp + i)->id    = (p_player + i)-> id;
-                }
-            }
-
-            delete[] p_player;
-            p_player = temp;
-
             // Writing on a text file
-            std::ofstream text ("player.txt");
+            std::ofstream write ("player.txt");
 
-            text << --countPlayers << '\n';
+            write << countPlayers - 1 << '\n';
             for (int i = 0; i < countPlayers; ++i) {
-                text << (p_player + i)->score << '\n';
-                text << (p_player + i)->id << '\n';
+                if (i == idIndex)
+                    continue;
+                write << (p_player + i)->score << '\n';
+                write << (p_player + i)->id << '\n';
             }
 
-            text.close();
+            write.close();
+            p_player = ReadPlayers();
 
             if (s_idPlayer == game.player.id) {
                 s_logInActive = false;
@@ -961,8 +955,8 @@ void LoginWindow(Player *&p_player, int &countPlayers) {
         }
     }
 
-        // Clicked on search button
-    else if (SBDL::mouseInRect(searchButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+    // Clicked on search button
+    else if (MOUSE_LEFT_CLICKED(searchButtonRect)) {
         bool idExist = false;
         int i;
         for (i = 0; i < countPlayers; ++i) {
@@ -984,10 +978,8 @@ void LoginWindow(Player *&p_player, int &countPlayers) {
         }
     }
 
-        // Clicked on enter button
-    else if (SBDL::mouseInRect(enterButtonRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED) &&
-             s_logInActive) {
-
+    // Clicked on enter button
+    else if (MOUSE_LEFT_CLICKED(enterButtonRect) && s_logInActive) {
         window = MENU;
         s_logInActive = false;
         s_idPlayer = " ";
@@ -1229,7 +1221,7 @@ void DifficultySelectWindow() {
         SBDL::drawRectangle(checkRect, 255, 255, 255, 170);
     }
 
-    else if (SBDL::mouseInRect(checkRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+    else if (MOUSE_LEFT_CLICKED(checkRect)) {
         int square = StrToNum(s_countSquares);
         int bomb   = StrToNum(s_countBombs);
         if (square >= 5 && square <= 20 && bomb <= pow(square, 2)) {
@@ -1240,19 +1232,19 @@ void DifficultySelectWindow() {
 
     // Clicked on fields
     if (SBDL::mouseInRect(inputFieldRect1)) {
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED))
-            inputField = -1;
-
         SBDL::drawRectangle(inputFieldRect1, 138, 138, 138);
+        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+            inputField = -1;
+        }
     } else {
         SBDL::drawRectangle(inputFieldRect1, 170, 170, 170);
     }
 
     if (SBDL::mouseInRect(inputFieldRect2)) {
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED))
-            inputField = 1;
-
         SBDL::drawRectangle(inputFieldRect2, 138, 138, 138);
+        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+            inputField = 1;
+        }
     } else {
         SBDL::drawRectangle(inputFieldRect2, 170, 170, 170);
     }
@@ -1351,7 +1343,7 @@ void MenuWindow(Player *p_player, int countPlayers, Save *&saveSlot) {
     if (SBDL::mouseInRect(loadGameRect)) {
         SBDL::showTexture(strLoadGame, 300, 200);
         if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            saveSlot = CollectSaveSlots();
+            saveSlot = ReadSaveSlots();
             window = LOAD_GAME;
         }
     } else {
@@ -1459,7 +1451,7 @@ void ChangeNameWindow(Player *p_player, int countPlayers) {
         SBDL::drawRectangle(checkRect, 255, 255, 255, 170);
     }
 
-    else if (SBDL::mouseInRect(checkRect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
+    else if (MOUSE_LEFT_CLICKED(checkRect)) {
         // Find player in players database
         for (int i = 0; i < countPlayers; ++i) {
             if (game.player.id == (p_player + i)->id) {
@@ -1542,12 +1534,10 @@ void LoadGameWindow(Save *&p_saveSlot) {
             SDL_Rect trashRect = {450, 50 + j*50, 25, 25};
             if (SBDL::mouseInRect(trashRect)) {
                 SBDL::showTexture(trashButton2, trashRect);
-
                 if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
                     DeleteSaveSlot(p_saveSlot, i);
                     return;
                 }
-
             } else {
                 SBDL::showTexture(trashButton1, trashRect);
             }
@@ -1569,37 +1559,33 @@ void LoadGameWindow(Save *&p_saveSlot) {
     }
 }
 
-int main() {
-    // Reading players from file
-    std::ifstream text;
+int ReadNumberOfPlayers() {
+    std::ifstream read("player.txt");;
     std::string line;
-    text.open("player.txt");
+    std::getline(read, line);
+    read.close();
+    return StrToNum(line);
+}
 
-    std::getline(text, line);
-
-    int countPlayers = StrToNum(line);
-
-    auto *p_player = new Player[countPlayers];
-
-    for (int i = 0; i < countPlayers; ++i) {
-        std::getline(text, (p_player + i)->score);
-        std::getline(text, (p_player + i)->id);
-    }
-    text.close();
-
-    // Preparing game window
+void InitializeGame() {
     const int WINDOW_WIDTH = 800;
     const int WINDOW_HEIGHT = 670;
     SBDL::InitEngine("Minesweeper", WINDOW_WIDTH, WINDOW_HEIGHT);
     LoadTextures();
     LoadFonts();
-
-    // Initializing
-    const int FPS = 30; //frame per second
-    const int DELAY = 1000 / FPS; //delay we need at each frame
     window = LOGIN;
     srand(time(nullptr));
+}
+
+int main() {
+    Player *p_players = ReadPlayers();
+    int countPlayers = ReadNumberOfPlayers();
     Save* p_saveSlot = nullptr;
+
+    // Preparing game window
+    const int FPS = 30; //frame per second
+    const int DELAY = 1000 / FPS; //delay we need at each frame
+    InitializeGame();
 
     while (SBDL::isRunning()) {
         unsigned int startTime = SBDL::getTime();
@@ -1609,7 +1595,7 @@ int main() {
 
         //Game logic code
         if (window == LOGIN) {
-            LoginWindow(p_player,countPlayers);
+            LoginWindow(p_players, ReadNumberOfPlayers());
         }
 
         else if (window == MAIN) {
@@ -1621,15 +1607,15 @@ int main() {
         }
 
         else if (window == MENU) {
-            MenuWindow(p_player, countPlayers, p_saveSlot);
+            MenuWindow(p_players, ReadNumberOfPlayers(), p_saveSlot);
         }
 
         else if (window == LEADERBOARD) {
-            LeaderboardWindow(p_player, countPlayers);
+            LeaderboardWindow(p_players, ReadNumberOfPlayers());
         }
 
         else if (window == CHANGE_NAME) {
-            ChangeNameWindow(p_player, countPlayers);
+            ChangeNameWindow(p_players, ReadNumberOfPlayers());
         }
 
         else if (window == LOAD_GAME) {
@@ -1639,7 +1625,6 @@ int main() {
         SBDL::updateRenderScreen();
 
         unsigned int elapsedTime = SBDL::getTime() - startTime;
-
         if (elapsedTime < DELAY)
             SBDL::delay(DELAY - elapsedTime);
     }
