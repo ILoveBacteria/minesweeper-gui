@@ -1387,89 +1387,95 @@ void DifficultySelectWindow() {
 
 void MenuWindow(Player *p_player, Save *&saveSlot) {
     int countPlayers = ReadNumberOfPlayers();
-    SDL_Rect newGameRect     = {300, 100, 100, 30};
-    SDL_Rect loadGameRect    = {300, 200, 100, 30};
-    SDL_Rect changeNameRect  = {300, 300, 130, 30};
-    SDL_Rect leaderboardRect = {300, 400, 120, 30};
-    SDL_Rect quitRect        = {300, 500, 50, 30};
-    SDL_Rect cancelRect = {5, 5, 40, 40};
-
-    // Cancel button
-    if (SBDL::mouseInRect(cancelRect)) {
-        SBDL::showTexture(cancelButton2, cancelRect);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            window = LOGIN;
-        }
-    } else {
-        SBDL::showTexture(cancelButton1, cancelRect);
-    }
+    SDL_Rect newGameRect = {360, 200, 100, 40};
+    SDL_Rect loadGameRect = {360, 250, 100, 40};
+    SDL_Rect changeNameRect = {360, 300, 130, 40};
+    SDL_Rect leaderboardRect = {360, 350, 120, 40};
+    SDL_Rect logoutRect = {360, 400, 70, 40};
+    SDL_Rect quitRect = {360, 450, 50, 40};
 
     // New game button
     Texture strNewGame = SBDL::createFontTexture(font1, "New Game", 14, 158, 33);
     if (SBDL::mouseInRect(newGameRect)) {
-        SBDL::showTexture(strNewGame, 300, 100);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            window = DIFFICULTY;
-        }
+        SBDL::showTexture(strNewGame, 360, 200);
     } else {
-        SBDL::showTexture(strNewGame, 300, 100);
+        SBDL::showTexture(strNewGame, 360, 200);
         SBDL::drawRectangle(newGameRect, 255, 255, 255, 170);
+    }
+    if (MOUSE_LEFT_CLICKED(newGameRect)) {
+        window = DIFFICULTY;
+        return;
     }
     SBDL::freeTexture(strNewGame);
 
     // load game button
     Texture strLoadGame = SBDL::createFontTexture(font1, "Load Game", 212, 179, 17);
     if (SBDL::mouseInRect(loadGameRect)) {
-        SBDL::showTexture(strLoadGame, 300, 200);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            saveSlot = ReadSaveSlots();
-            window = LOAD_GAME;
-        }
+        SBDL::showTexture(strLoadGame, 360, 250);
     } else {
-        SBDL::showTexture(strLoadGame, 300, 200);
+        SBDL::showTexture(strLoadGame, 360, 250);
         SBDL::drawRectangle(loadGameRect, 255, 255, 255, 170);
+    }
+    if (MOUSE_LEFT_CLICKED(loadGameRect)) {
+        saveSlot = ReadSaveSlots();
+        window = LOAD_GAME;
+        return;
     }
     SBDL::freeTexture(strLoadGame);
 
     // Change name Button
     Texture strChangeName = SBDL::createFontTexture(font1, "Change Name", 189, 67, 26);
     if (SBDL::mouseInRect(changeNameRect)) {
-        SBDL::showTexture(strChangeName, 300, 300);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            window = CHANGE_NAME;
-        }
+        SBDL::showTexture(strChangeName, 360, 300);
     } else {
-        SBDL::showTexture(strChangeName, 300, 300);
+        SBDL::showTexture(strChangeName, 360, 300);
         SBDL::drawRectangle(changeNameRect, 255, 255, 255, 170);
+    }
+    if (MOUSE_LEFT_CLICKED(changeNameRect)) {
+        window = CHANGE_NAME;
     }
     SBDL::freeTexture(strChangeName);
 
     // Leaderboard Button
     Texture strLeaderboard = SBDL::createFontTexture(font1, "Leaderboard", 189, 67, 26);
     if (SBDL::mouseInRect(leaderboardRect)) {
-        SBDL::showTexture(strLeaderboard, 300, 400);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            // Sorting players by score
-            BubbleSort(p_player, countPlayers);
-            window = LEADERBOARD;
-            return;
-        }
+        SBDL::showTexture(strLeaderboard, 360, 350);
     } else {
-        SBDL::showTexture(strLeaderboard, 300, 400);
+        SBDL::showTexture(strLeaderboard, 360, 350);
         SBDL::drawRectangle(leaderboardRect, 255, 255, 255, 170);
     }
+    if (MOUSE_LEFT_CLICKED(leaderboardRect)) {
+        // Sorting players by score
+        BubbleSort(p_player, countPlayers);
+        window = LEADERBOARD;
+        return;
+    }
     SBDL::freeTexture(strLeaderboard);
+
+    // Logout Button
+    Texture strLogout = SBDL::createFontTexture(font1, "Logout", 189, 67, 26);
+    if (SBDL::mouseInRect(logoutRect)) {
+        SBDL::showTexture(strLogout, 360, 400);
+    } else {
+        SBDL::showTexture(strLogout, 360, 400);
+        SBDL::drawRectangle(logoutRect, 255, 255, 255, 170);
+    }
+    if (MOUSE_LEFT_CLICKED(logoutRect)) {
+        window = LOGIN;
+        return;
+    }
+    SBDL::freeTexture(strLogout);
 
     // Quit Button
     Texture strQuit = SBDL::createFontTexture(font1, "Quit", 189, 67, 26);
     if (SBDL::mouseInRect(quitRect)) {
-        SBDL::showTexture(strQuit, 300, 500);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            SBDL::stop();
-        }
+        SBDL::showTexture(strQuit, 360, 450);
     } else {
-        SBDL::showTexture(strQuit, 300, 500);
+        SBDL::showTexture(strQuit, 360, 450);
         SBDL::drawRectangle(quitRect, 255, 255, 255, 170);
+    }
+    if (MOUSE_LEFT_CLICKED(quitRect)) {
+        SBDL::stop();
     }
     SBDL::freeTexture(strQuit);
 }
