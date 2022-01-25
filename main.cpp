@@ -6,6 +6,7 @@
 
 #define MOUSE_LEFT_CLICKED(rect) (SBDL::mouseInRect(rect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED))
 
+#define POINT game.countSquareInRow * game.countBombs
 struct Player {
     std::string score;
     std::string id;
@@ -762,7 +763,7 @@ void AllocateGameMemory() {
 }
 
 void CreateGameBoard() {
-    int startPoint_x = 20, startPoint_y = 3;
+    int startPoint_x = 3, startPoint_y = 3;
     // Creating squares
     for (int i = 0; i < game.countSquareInRow; ++i) {
         for (int j = 0; j < game.countSquareInRow; ++j) {
@@ -776,7 +777,7 @@ void CreateGameBoard() {
 
             startPoint_x += 28;
         }
-        startPoint_x = 20;
+        startPoint_x = 3;
         startPoint_y += 28;
     }
 }
@@ -1119,6 +1120,14 @@ void WinGameWindow() {
     }
 
     ShowGameBoardTextures();
+
+    Texture strWin = SBDL::createFontTexture(font, "You Won!", 0, 125, 0);
+    Texture strScore = SBDL::createFontTexture(font, "You earned " +
+                       NumToStr(POINT) + " point", 189, 162, 11);
+    SBDL::showTexture(strWin, 575, 200);
+    SBDL::showTexture(strScore, 575, 250);
+    SBDL::freeTexture(strWin);
+    SBDL::freeTexture(strScore);
 }
 
 void MainWindow() {
@@ -1143,6 +1152,7 @@ void MainWindow() {
                         }
 
                         else if (CountOpenedSquares() == pow(game.countSquareInRow, 2) - game.countBombs) {
+                            game.player.score = NumToStr(StrToNum(game.player.score) + POINT);
                             window = WIN;
                         }
                     }
@@ -1593,8 +1603,8 @@ void LoadGameWindow(Save *&p_saveSlot) {
 }
 
 void InitializeGame() {
-    const int WINDOW_WIDTH = 800;
-    const int WINDOW_HEIGHT = 670;
+    const int WINDOW_WIDTH = 820;
+    const int WINDOW_HEIGHT = 570;
     SBDL::InitEngine("Minesweeper", WINDOW_WIDTH, WINDOW_HEIGHT);
     LoadTextures();
     LoadFonts();
