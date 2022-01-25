@@ -1387,19 +1387,20 @@ void DifficultySelectWindow() {
 
 void MenuWindow(Player *p_player, Save *&saveSlot) {
     int countPlayers = ReadNumberOfPlayers();
-    SDL_Rect newGameRect = {360, 200, 100, 40};
-    SDL_Rect loadGameRect = {360, 250, 100, 40};
-    SDL_Rect changeNameRect = {360, 300, 130, 40};
-    SDL_Rect leaderboardRect = {360, 350, 120, 40};
-    SDL_Rect logoutRect = {360, 400, 70, 40};
-    SDL_Rect quitRect = {360, 450, 50, 40};
+    const int x = 320;
+    SDL_Rect newGameRect = {x, 200, 100, 40};
+    SDL_Rect loadGameRect = {x, 250, 100, 40};
+    SDL_Rect changeNameRect = {x, 300, 130, 40};
+    SDL_Rect leaderboardRect = {x, 350, 120, 40};
+    SDL_Rect logoutRect = {x, 400, 70, 40};
+    SDL_Rect quitRect = {x, 450, 50, 40};
 
     // New game button
     Texture strNewGame = SBDL::createFontTexture(font1, "New Game", 14, 158, 33);
     if (SBDL::mouseInRect(newGameRect)) {
-        SBDL::showTexture(strNewGame, 360, 200);
+        SBDL::showTexture(strNewGame, x, 200);
     } else {
-        SBDL::showTexture(strNewGame, 360, 200);
+        SBDL::showTexture(strNewGame, x, 200);
         SBDL::drawRectangle(newGameRect, 255, 255, 255, 170);
     }
     if (MOUSE_LEFT_CLICKED(newGameRect)) {
@@ -1411,9 +1412,9 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     // load game button
     Texture strLoadGame = SBDL::createFontTexture(font1, "Load Game", 212, 179, 17);
     if (SBDL::mouseInRect(loadGameRect)) {
-        SBDL::showTexture(strLoadGame, 360, 250);
+        SBDL::showTexture(strLoadGame, x, 250);
     } else {
-        SBDL::showTexture(strLoadGame, 360, 250);
+        SBDL::showTexture(strLoadGame, x, 250);
         SBDL::drawRectangle(loadGameRect, 255, 255, 255, 170);
     }
     if (MOUSE_LEFT_CLICKED(loadGameRect)) {
@@ -1426,9 +1427,9 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     // Change name Button
     Texture strChangeName = SBDL::createFontTexture(font1, "Change Name", 189, 67, 26);
     if (SBDL::mouseInRect(changeNameRect)) {
-        SBDL::showTexture(strChangeName, 360, 300);
+        SBDL::showTexture(strChangeName, x, 300);
     } else {
-        SBDL::showTexture(strChangeName, 360, 300);
+        SBDL::showTexture(strChangeName, x, 300);
         SBDL::drawRectangle(changeNameRect, 255, 255, 255, 170);
     }
     if (MOUSE_LEFT_CLICKED(changeNameRect)) {
@@ -1439,9 +1440,9 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     // Leaderboard Button
     Texture strLeaderboard = SBDL::createFontTexture(font1, "Leaderboard", 189, 67, 26);
     if (SBDL::mouseInRect(leaderboardRect)) {
-        SBDL::showTexture(strLeaderboard, 360, 350);
+        SBDL::showTexture(strLeaderboard, x, 350);
     } else {
-        SBDL::showTexture(strLeaderboard, 360, 350);
+        SBDL::showTexture(strLeaderboard, x, 350);
         SBDL::drawRectangle(leaderboardRect, 255, 255, 255, 170);
     }
     if (MOUSE_LEFT_CLICKED(leaderboardRect)) {
@@ -1455,9 +1456,9 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     // Logout Button
     Texture strLogout = SBDL::createFontTexture(font1, "Logout", 189, 67, 26);
     if (SBDL::mouseInRect(logoutRect)) {
-        SBDL::showTexture(strLogout, 360, 400);
+        SBDL::showTexture(strLogout, x, 400);
     } else {
-        SBDL::showTexture(strLogout, 360, 400);
+        SBDL::showTexture(strLogout, x, 400);
         SBDL::drawRectangle(logoutRect, 255, 255, 255, 170);
     }
     if (MOUSE_LEFT_CLICKED(logoutRect)) {
@@ -1469,15 +1470,20 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     // Quit Button
     Texture strQuit = SBDL::createFontTexture(font1, "Quit", 189, 67, 26);
     if (SBDL::mouseInRect(quitRect)) {
-        SBDL::showTexture(strQuit, 360, 450);
+        SBDL::showTexture(strQuit, x, 450);
     } else {
-        SBDL::showTexture(strQuit, 360, 450);
+        SBDL::showTexture(strQuit, x, 450);
         SBDL::drawRectangle(quitRect, 255, 255, 255, 170);
     }
     if (MOUSE_LEFT_CLICKED(quitRect)) {
         SBDL::stop();
     }
     SBDL::freeTexture(strQuit);
+
+    // Title
+    Texture strMenu = SBDL::createFontTexture(font3, "Menu", 0, 162, 232);
+    SBDL::showTexture(strMenu, 110, 80);
+    SBDL::freeTexture(strMenu);
 }
 
 void LeaderboardWindow(Player *p_player) {
