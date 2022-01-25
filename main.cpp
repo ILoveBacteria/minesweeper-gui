@@ -896,6 +896,7 @@ void LoginWindow(Player *&p_player) {
             write << "0" << '\n' << s_idPlayer;
 
             write.close();
+            delete[] p_player;
             p_player = ReadPlayers();
 
             SBDL::freeTexture(loginPrompt);
@@ -934,6 +935,7 @@ void LoginWindow(Player *&p_player) {
             }
 
             write.close();
+            delete[] p_player;
             p_player = ReadPlayers();
 
             if (s_idPlayer == game.player.id) {
@@ -1130,7 +1132,27 @@ void WinGameWindow() {
     SBDL::freeTexture(strScore);
 }
 
-void MainWindow() {
+void AddScore(Player *p_player) {
+    int countPlayers = ReadNumberOfPlayers();
+    int j;
+    for (j = 0; j < countPlayers; ++j) {
+        if ((p_player + j)->id == game.player.id)
+            break;
+    }
+    (p_player+j)->score = NumToStr(StrToNum((p_player+j)->score) + POINT);
+    // Writing on a text file
+    std::ofstream text ("player.txt");
+
+    text << countPlayers << '\n';
+    for (int i = 0; i < countPlayers; ++i) {
+        text << (p_player + i)->score << '\n';
+        text << (p_player + i)->id << '\n';
+    }
+
+    text.close();
+}
+
+void MainWindow(Player *p_player) {
     ShowGameBoardTextures();
     // string: Number of bombs left
     Texture strBombLeft =  SBDL::createFontTexture(font, NumToStr(game.countBombs - CountFlags()) +
@@ -1152,7 +1174,7 @@ void MainWindow() {
                         }
 
                         else if (CountOpenedSquares() == pow(game.countSquareInRow, 2) - game.countBombs) {
-                            game.player.score = NumToStr(StrToNum(game.player.score) + POINT);
+                            AddScore(p_player);
                             window = WIN;
                         }
                     }
@@ -1633,7 +1655,7 @@ int main() {
         }
 
         else if (window == MAIN) {
-            MainWindow();
+            MainWindow(p_players);
         }
 
         else if (window == DIFFICULTY) {
