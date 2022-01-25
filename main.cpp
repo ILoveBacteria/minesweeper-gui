@@ -51,7 +51,7 @@ enum Difficultly {
     EASY, NORMAL, HARD, CUSTOM
 };
 
-Texture checkButton1, checkButton2, enterButton1, enterButton2, cursor, addUserButton1, addUserButton2, trashButton1,
+Texture checkButton1, checkButton2, enterButton1, enterButton2, arrow, addUserButton1, addUserButton2, trashButton1,
         trashButton2, cancelButton1, cancelButton2, searchButton1, searchButton2, bombTexture, number1, number2,
         number3, number4, number5, number6, number7, number8, flag, saveButton1, saveButton2;
 Font *font;
@@ -61,7 +61,7 @@ void LoadTextures() {
     checkButton2 = SBDL::loadTexture("Reference/check2.png");
     enterButton1 = SBDL::loadTexture("Reference/enter1.png");
     enterButton2 = SBDL::loadTexture("Reference/enter2.png");
-    cursor = SBDL::loadTexture("Reference/text-editor.png");
+    arrow = SBDL::loadTexture("Reference/arrow.png");
     addUserButton1 = SBDL::loadTexture("Reference/user-add1.png");
     addUserButton2 = SBDL::loadTexture("Reference/user-add2.png");
     trashButton1 = SBDL::loadTexture("Reference/trash1.png");
@@ -861,7 +861,7 @@ int ReadNumberOfPlayers() {
 
 void LoginWindow(Player *&p_player) {
     SDL_Rect idFieldRect = {10, 10, 250, 70};
-    SDL_Rect cursorRect = {15, 40, 15, 20};
+    SDL_Rect arrowRect = {15, 40, 15, 20};
     SDL_Rect playerList = {10, 100, 250, 150};
     SDL_Rect enterButtonRect = {300, 200, 50, 50};
     SDL_Rect addUserButtonRect = {400, 400, 50, 50};
@@ -985,9 +985,9 @@ void LoginWindow(Player *&p_player) {
     SBDL::drawRectangle(idFieldRect,199, 255, 254);
     SBDL::drawRectangle(playerList,199, 255, 254);
 
-    // Cursor
+    // Arrow
     if (SBDL::getTime() / 1000 % 2 == 0)
-        SBDL::showTexture(cursor, cursorRect);
+        SBDL::showTexture(arrow, arrowRect);
 
     // Enter Button
     if (SBDL::mouseInRect(enterButtonRect))
@@ -1214,8 +1214,8 @@ void DifficultySelectWindow() {
     SDL_Rect easyRect = {300, 100, 50, 30};
     SDL_Rect normalRect = {300, 200, 80, 30};
     SDL_Rect hardRect = {300, 300, 50, 30};
-    SDL_Rect cursorRect1 = {15 + (int)s_countBombs.length()*10, 40, 15, 20};
-    SDL_Rect cursorRect2 = {500 + (int)s_countSquares.length()*10, 40, 15, 20};
+    SDL_Rect arrowRect1 = {15 + (int)s_countBombs.length() * 10, 40, 15, 20};
+    SDL_Rect arrowRect2 = {500 + (int)s_countSquares.length() * 10, 40, 15, 20};
     SDL_Rect inputFieldRect1 = {10, 40, 100, 50};
     SDL_Rect inputFieldRect2 = {500, 40, 100, 50};
     SDL_Rect checkRect = {10, 500, 50, 50};
@@ -1312,16 +1312,16 @@ void DifficultySelectWindow() {
     }
 
     if (inputField == -1) {
-        // Cursor
+        // Arrow
         if (SBDL::getTime() / 1000 % 2 == 0)
-            SBDL::showTexture(cursor, cursorRect1);
+            SBDL::showTexture(arrow, arrowRect1);
 
         Keyboard(s_countBombs, true);
 
     } else {
-        // Cursor
+        // Arrow
         if (SBDL::getTime() / 1000 % 2 == 0)
-            SBDL::showTexture(cursor, cursorRect2);
+            SBDL::showTexture(arrow, arrowRect2);
 
         Keyboard(s_countSquares, true);
     }
@@ -1487,7 +1487,7 @@ void ChangeNameWindow(Player *p_player) {
     static std::string s_newName = " ";
     Keyboard(s_newName);
 
-    SDL_Rect cursorRect = {15 + (int)s_newName.length() * 10, 40, 15, 20};
+    SDL_Rect arrowRect = {15 + (int)s_newName.length() * 10, 40, 15, 20};
     SDL_Rect cancelRect = {5, 5, 40, 40};
     SDL_Rect checkRect = {10, 500, 50, 50};
     SDL_Rect inputFieldRect = {10, 40, 100, 50};
@@ -1540,9 +1540,9 @@ void ChangeNameWindow(Player *p_player) {
         s_newName.shrink_to_fit();
     }
 
-    // Cursor
+    // Arrow
     if (SBDL::getTime() / 1000 % 2 == 0)
-        SBDL::showTexture(cursor, cursorRect);
+        SBDL::showTexture(arrow, arrowRect);
 
     // Show new name
     Texture strNewName = SBDL::createFontTexture(font, s_newName, 0, 0, 0);
