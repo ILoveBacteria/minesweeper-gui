@@ -1000,7 +1000,7 @@ void LoginWindow(Player *&p_player) {
 
     // ID inputting string
     Texture strID = SBDL::createFontTexture(font1, s_idPlayer, 0, 0, 0);
-    SBDL::showTexture(strID, 240, 300);
+    SBDL::showTexture(strID, 240, 303);
     SBDL::freeTexture(strID);
 
     // Log in prompt
@@ -1227,65 +1227,63 @@ void DifficultySelectWindow() {
     static std::string s_countBombs = " ";
     static std::string s_countSquares = " ";
 
-    SDL_Rect easyRect = {300, 100, 50, 30};
-    SDL_Rect normalRect = {300, 200, 80, 30};
-    SDL_Rect hardRect = {300, 300, 50, 30};
-    SDL_Rect arrowRect1 = {15 + (int)s_countBombs.length() * 10, 40, 15, 20};
-    SDL_Rect arrowRect2 = {500 + (int)s_countSquares.length() * 10, 40, 15, 20};
-    SDL_Rect inputFieldRect1 = {10, 40, 100, 50};
-    SDL_Rect inputFieldRect2 = {500, 40, 100, 50};
-    SDL_Rect checkRect = {10, 500, 50, 50};
-    SDL_Rect cancelRect = {5, 5, 40, 40};
+    SDL_Rect easyRect = {250, 180, 50, 40};
+    SDL_Rect normalRect = {330, 180, 80, 40};
+    SDL_Rect hardRect = {430, 180, 50, 40};
+    SDL_Rect arrowRect1 = {205, 407, 20, 20};
+    SDL_Rect arrowRect2 = {567, 407, 20, 20};
+    SDL_Rect inputFieldRect1 = {200, 392, 100, 50};
+    SDL_Rect inputFieldRect2 = {562, 392, 100, 50};
+    SDL_Rect checkRect = {715, 392, 50, 50};
+    SDL_Rect cancelRect = {770, 5, 40, 40};
 
     // Cancel Button
-    if (SBDL::mouseInRect(cancelRect)) {
+    if (SBDL::mouseInRect(cancelRect))
         SBDL::showTexture(cancelButton2, cancelRect);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            window = MENU;
-        }
-    } else {
+    else
         SBDL::showTexture(cancelButton1, cancelRect);
-    }
+    if (MOUSE_LEFT_CLICKED(cancelRect))
+        window = MENU;
 
     // Easy Button
-    Texture strEasy = SBDL::createFontTexture(font1, "Easy", 14, 158, 33);
+    Texture strEasy = SBDL::createFontTexture(font1, "Easy", 11, 115, 25);
     if (SBDL::mouseInRect(easyRect)) {
-        SBDL::showTexture(strEasy, 300, 100);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            buttonClicked = true;
-            difficultly = EASY;
-        }
+        SBDL::showTexture(strEasy, 250, 180);
     } else {
-        SBDL::showTexture(strEasy, 300, 100);
+        SBDL::showTexture(strEasy, 250, 180);
         SBDL::drawRectangle(easyRect, 255, 255, 255, 170);
+    }
+    if (MOUSE_LEFT_CLICKED(easyRect)) {
+        buttonClicked = true;
+        difficultly = EASY;
     }
     SBDL::freeTexture(strEasy);
 
     // Normal Button
-    Texture strNormal = SBDL::createFontTexture(font1, "Normal", 212, 179, 17);
+    Texture strNormal = SBDL::createFontTexture(font1, "Normal", 230, 150, 2);
     if (SBDL::mouseInRect(normalRect)) {
-        SBDL::showTexture(strNormal, 300, 200);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            buttonClicked = true;
-            difficultly = NORMAL;
-        }
+        SBDL::showTexture(strNormal, 330, 180);
     } else {
-        SBDL::showTexture(strNormal, 300, 200);
+        SBDL::showTexture(strNormal, 330, 180);
         SBDL::drawRectangle(normalRect, 255, 255, 255, 170);
+    }
+    if (MOUSE_LEFT_CLICKED(normalRect)) {
+        buttonClicked = true;
+        difficultly = NORMAL;
     }
     SBDL::freeTexture(strNormal);
 
     // Hard Button
-    Texture strHard = SBDL::createFontTexture(font1, "Hard", 189, 67, 26);
+    Texture strHard = SBDL::createFontTexture(font1, "Hard", 255, 41, 41);
     if (SBDL::mouseInRect(hardRect)) {
-        SBDL::showTexture(strHard, 300, 300);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            buttonClicked = true;
-            difficultly = HARD;
-        }
+        SBDL::showTexture(strHard, 430, 180);
     } else {
-        SBDL::showTexture(strHard, 300, 300);
+        SBDL::showTexture(strHard, 430, 180);
         SBDL::drawRectangle(hardRect, 255, 255, 255, 170);
+    }
+    if (MOUSE_LEFT_CLICKED(hardRect)) {
+        buttonClicked = true;
+        difficultly = HARD;
     }
     SBDL::freeTexture(strHard);
 
@@ -1308,24 +1306,20 @@ void DifficultySelectWindow() {
         }
     }
 
-    // Clicked on fields
-    if (SBDL::mouseInRect(inputFieldRect1)) {
-        SBDL::drawRectangle(inputFieldRect1, 138, 138, 138);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            inputField = -1;
-        }
-    } else {
-        SBDL::drawRectangle(inputFieldRect1, 170, 170, 170);
-    }
+    // Draw rectangles and handle click
+    if (SBDL::mouseInRect(inputFieldRect1))
+        SBDL::drawRectangle(inputFieldRect1, 110, 255, 254);
+    else
+        SBDL::drawRectangle(inputFieldRect1, 199, 255, 254);
+    if (MOUSE_LEFT_CLICKED(inputFieldRect1))
+        inputField = -1;
 
-    if (SBDL::mouseInRect(inputFieldRect2)) {
-        SBDL::drawRectangle(inputFieldRect2, 138, 138, 138);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            inputField = 1;
-        }
-    } else {
-        SBDL::drawRectangle(inputFieldRect2, 170, 170, 170);
-    }
+    if (SBDL::mouseInRect(inputFieldRect2))
+        SBDL::drawRectangle(inputFieldRect2, 110, 255, 254);
+    else
+        SBDL::drawRectangle(inputFieldRect2, 199, 255, 254);
+    if (MOUSE_LEFT_CLICKED(inputFieldRect2))
+        inputField = 1;
 
     if (inputField == -1) {
         // Arrow
@@ -1333,7 +1327,6 @@ void DifficultySelectWindow() {
             SBDL::showTexture(arrow, arrowRect1);
 
         Keyboard(s_countBombs, true);
-
     } else {
         // Arrow
         if (SBDL::getTime() / 1000 % 2 == 0)
@@ -1343,12 +1336,30 @@ void DifficultySelectWindow() {
     }
 
     Texture strCountBombs = SBDL::createFontTexture(font1, s_countBombs, 0, 0, 0);
-    SBDL::showTexture(strCountBombs, 15, 40);
+    SBDL::showTexture(strCountBombs, 228, 400);
     SBDL::freeTexture(strCountBombs);
 
     Texture strCountSquares = SBDL::createFontTexture(font1, s_countSquares, 0, 0, 0);
-    SBDL::showTexture(strCountSquares, 500, 40);
+    SBDL::showTexture(strCountSquares, 590, 400);
     SBDL::freeTexture(strCountSquares);
+
+    Texture strNumberBomb = SBDL::createFontTexture(font1, "Number of bomb:", 0, 0, 0);
+    SBDL::showTexture(strNumberBomb, 25, 400);
+    SBDL::freeTexture(strNumberBomb);
+
+    Texture strSizeScreen = SBDL::createFontTexture(font1, "Size of game screen:", 0, 0, 0);
+    SBDL::showTexture(strSizeScreen, 360, 400);
+    SBDL::freeTexture(strSizeScreen);
+
+    // Title1
+    Texture strSelectLevel = SBDL::createFontTexture(font3, "Select Difficulty Level", 0, 162, 232);
+    SBDL::showTexture(strSelectLevel, 70, 80);
+    SBDL::freeTexture(strSelectLevel);
+
+    // Title2
+    Texture strCustom = SBDL::createFontTexture(font3, "Custom Mode", 0, 162, 232);
+    SBDL::showTexture(strCustom, 70, 300);
+    SBDL::freeTexture(strCustom);
 
     if (buttonClicked) {
         DeallocateGameMemory();
@@ -1374,7 +1385,7 @@ void DifficultySelectWindow() {
         // Custom mode
         else if (difficultly == CUSTOM) {
             game.countSquareInRow = StrToNum(s_countSquares);
-            game.countBombs       = StrToNum(s_countBombs);
+            game.countBombs = StrToNum(s_countBombs);
         }
 
         AllocateGameMemory();
@@ -1396,7 +1407,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     SDL_Rect quitRect = {x, 450, 50, 40};
 
     // New game button
-    Texture strNewGame = SBDL::createFontTexture(font1, "New Game", 14, 158, 33);
+    Texture strNewGame = SBDL::createFontTexture(font1, "New Game", 0, 92, 21);
     if (SBDL::mouseInRect(newGameRect)) {
         SBDL::showTexture(strNewGame, x, 200);
     } else {
@@ -1410,7 +1421,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     SBDL::freeTexture(strNewGame);
 
     // load game button
-    Texture strLoadGame = SBDL::createFontTexture(font1, "Load Game", 212, 179, 17);
+    Texture strLoadGame = SBDL::createFontTexture(font1, "Load Game", 181, 167, 36);
     if (SBDL::mouseInRect(loadGameRect)) {
         SBDL::showTexture(strLoadGame, x, 250);
     } else {
@@ -1425,7 +1436,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     SBDL::freeTexture(strLoadGame);
 
     // Change name Button
-    Texture strChangeName = SBDL::createFontTexture(font1, "Change Name", 189, 67, 26);
+    Texture strChangeName = SBDL::createFontTexture(font1, "Change Name", 36, 101, 181);
     if (SBDL::mouseInRect(changeNameRect)) {
         SBDL::showTexture(strChangeName, x, 300);
     } else {
@@ -1438,7 +1449,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     SBDL::freeTexture(strChangeName);
 
     // Leaderboard Button
-    Texture strLeaderboard = SBDL::createFontTexture(font1, "Leaderboard", 189, 67, 26);
+    Texture strLeaderboard = SBDL::createFontTexture(font1, "Leaderboard", 117, 0, 90);
     if (SBDL::mouseInRect(leaderboardRect)) {
         SBDL::showTexture(strLeaderboard, x, 350);
     } else {
@@ -1454,7 +1465,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     SBDL::freeTexture(strLeaderboard);
 
     // Logout Button
-    Texture strLogout = SBDL::createFontTexture(font1, "Logout", 189, 67, 26);
+    Texture strLogout = SBDL::createFontTexture(font1, "Logout", 255, 162, 41);
     if (SBDL::mouseInRect(logoutRect)) {
         SBDL::showTexture(strLogout, x, 400);
     } else {
@@ -1468,7 +1479,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     SBDL::freeTexture(strLogout);
 
     // Quit Button
-    Texture strQuit = SBDL::createFontTexture(font1, "Quit", 189, 67, 26);
+    Texture strQuit = SBDL::createFontTexture(font1, "Quit", 255, 41, 41);
     if (SBDL::mouseInRect(quitRect)) {
         SBDL::showTexture(strQuit, x, 450);
     } else {
