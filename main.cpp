@@ -417,6 +417,12 @@ std::string NumToStr(int n) {
     int length = 0;
     std::string result;
 
+    // 0
+    if (n == 0) {
+        result.push_back('0');
+        return result;
+    }
+
     // Length of number
     for (int i = 0;; ++i) {
         if (n / pow(10, i) > 0)
