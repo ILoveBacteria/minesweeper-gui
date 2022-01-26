@@ -5,8 +5,11 @@
 #include <ctime>
 
 #define MOUSE_LEFT_CLICKED(rect) (SBDL::mouseInRect(rect) && SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED))
+#define MOUSE_RIGHT_CLICKED(rect) (SBDL::mouseInRect(rect) && SBDL::Mouse.clicked(SDL_BUTTON_RIGHT, 1, SDL_PRESSED))
 
 #define POINT game.countSquareInRow * game.countBombs
+#define LEFT -1
+#define RIGHT 1
 struct Player {
     std::string score;
     std::string id;
@@ -53,7 +56,7 @@ enum Difficultly {
 
 Texture checkButton1, checkButton2, enterButton1, enterButton2, arrow, addUserButton1, addUserButton2, trashButton1,
         trashButton2, cancelButton1, cancelButton2, searchButton1, searchButton2, bombTexture, number1, number2,
-        number3, number4, number5, number6, number7, number8, flag, saveButton1, saveButton2;
+        number3, number4, number5, number6, number7, number8, flag, saveButton1, saveButton2, down1, down2, up1, up2;
 Font *font1, *font2, *font3;
 
 void LoadTextures() {
@@ -62,6 +65,10 @@ void LoadTextures() {
     enterButton1 = SBDL::loadTexture("Reference/enter1.png");
     enterButton2 = SBDL::loadTexture("Reference/enter2.png");
     arrow = SBDL::loadTexture("Reference/arrow.png");
+    down1 = SBDL::loadTexture("Reference/down1.png");
+    down2 = SBDL::loadTexture("Reference/down2.png");
+    up1 = SBDL::loadTexture("Reference/up1.png");
+    up2 = SBDL::loadTexture("Reference/up2.png");
     addUserButton1 = SBDL::loadTexture("Reference/user-add1.png");
     addUserButton2 = SBDL::loadTexture("Reference/user-add2.png");
     trashButton1 = SBDL::loadTexture("Reference/trash1.png");
@@ -1223,7 +1230,7 @@ void MainWindow(Player *p_player) {
 void DifficultySelectWindow() {
     Difficultly difficultly;
     bool buttonClicked = false;
-    static short int inputField = -1; // -1: Left field  +1: Right field
+    static short int inputField = LEFT; // -1: Left field  +1: Right field
     static std::string s_countBombs = " ";
     static std::string s_countSquares = " ";
 
@@ -1312,16 +1319,16 @@ void DifficultySelectWindow() {
     else
         SBDL::drawRectangle(inputFieldRect1, 199, 255, 254);
     if (MOUSE_LEFT_CLICKED(inputFieldRect1))
-        inputField = -1;
+        inputField = LEFT;
 
     if (SBDL::mouseInRect(inputFieldRect2))
         SBDL::drawRectangle(inputFieldRect2, 110, 255, 254);
     else
         SBDL::drawRectangle(inputFieldRect2, 199, 255, 254);
     if (MOUSE_LEFT_CLICKED(inputFieldRect2))
-        inputField = 1;
+        inputField = RIGHT;
 
-    if (inputField == -1) {
+    if (inputField == LEFT) {
         // Arrow
         if (SBDL::getTime() / 1000 % 2 == 0)
             SBDL::showTexture(arrow, arrowRect1);
@@ -1499,8 +1506,8 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
 
 void LeaderboardWindow(Player *p_player) {
     int countPlayers = ReadNumberOfPlayers();
-    SDL_Rect cancelRect = {770, 5, 40, 40};
     // Cancel Button
+    SDL_Rect cancelRect = {770, 5, 40, 40};
     if (SBDL::mouseInRect(cancelRect))
         SBDL::showTexture(cancelButton2, cancelRect);
     else
@@ -1597,76 +1604,104 @@ void ChangeNameWindow(Player *p_player) {
 }
 
 void LoadGameWindow(Save *&p_saveSlot) {
+    static int y = 200;
     int countSaveSlot;
-    // Cancel button
-    SDL_Rect cancelRect = {5, 5, 40, 40};
-    if (SBDL::mouseInRect(cancelRect)) {
-        SBDL::showTexture(cancelButton2, cancelRect);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            window = MENU;
-            delete[] p_saveSlot;
-            return;
-        }
-    } else {
-        SBDL::showTexture(cancelButton1, cancelRect);
-    }
 
     // Read number of saves
     std::ifstream read;
     std::string line;
     read.open("save.txt");
     std::getline(read, line);
-    countSaveSlot = StrToNum(line);
     read.close();
+    countSaveSlot = StrToNum(line);
 
-    // Show textures
-    bool showedTexture = false;
+    // Cancel Button
+    SDL_Rect cancelRect = {770, 5, 40, 40};
+    if (SBDL::mouseInRect(cancelRect))
+        SBDL::showTexture(cancelButton2, cancelRect);
+    else
+        SBDL::showTexture(cancelButton1, cancelRect);
+    if (MOUSE_LEFT_CLICKED(cancelRect))
+        window = MENU;
+
+    // Down Button
+    SDL_Rect downRect = {770, 300, 40, 40};
+    if (SBDL::mouseInRect(downRect))
+        SBDL::showTexture(down2, downRect);
+    else
+        SBDL::showTexture(down1, downRect);
+    if (MOUSE_LEFT_CLICKED(downRect))
+        y -= 21;
+
+    // Up Button
+    SDL_Rect upRect = {770, 250, 40, 40};
+    if (SBDL::mouseInRect(upRect))
+        SBDL::showTexture(up2, upRect);
+    else
+        SBDL::showTexture(up1, upRect);
+    if (MOUSE_LEFT_CLICKED(upRect))
+        y += y == 200 ? 0 : 21;
+
+    // Show save slots
     for (int i = 0, j = 0; i < countSaveSlot; ++i) {
         if ((p_saveSlot + i)->id == game.player.id) {
-            // Load button
-            SDL_Rect loadThisRect = {300, 50 + j*50, 100, 30};
-            Texture strLoadThis = SBDL::createFontTexture(font1, "Load This", 14, 158, 33);
-            if (SBDL::mouseInRect(loadThisRect)) {
-                SBDL::showTexture(strLoadThis, 300, 50 + j*50);
-                if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-                    window = MAIN;
-                    LoadGame(p_saveSlot + i);
-                    delete[] p_saveSlot;
-                    return;
-                }
-            } else {
-                SBDL::showTexture(strLoadThis, 300, 50 + j*50);
-                SBDL::drawRectangle(loadThisRect, 255, 255, 255, 170);
-            }
-            SBDL::freeTexture(strLoadThis);
-
-            // Trash button
-            SDL_Rect trashRect = {450, 50 + j*50, 25, 25};
-            if (SBDL::mouseInRect(trashRect)) {
-                SBDL::showTexture(trashButton2, trashRect);
-                if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-                    DeleteSaveSlot(p_saveSlot, i);
-                    return;
-                }
-            } else {
-                SBDL::showTexture(trashButton1, trashRect);
-            }
+            // Draw rectangle
+            SDL_Rect background = {150, y-5 + j*50, 500, 40};
+            SBDL::drawRectangle(background, 201, 255, 202);
 
             // Show time of save
             Texture strTime = SBDL::createFontTexture(font1, (p_saveSlot + i)->time, 0, 0, 0);
-            SBDL::showTexture(strTime, 10, 50 + j * 50);
+            SBDL::showTexture(strTime, 190, y + j * 50);
             SBDL::freeTexture(strTime);
 
+            // Load button
+            SDL_Rect loadThisRect = {470, y + j*50, 100, 30};
+            Texture strLoadThis1 = SBDL::createFontTexture(font1, "Load This", 114, 224, 129);
+            Texture strLoadThis2 = SBDL::createFontTexture(font1, "Load This", 14, 158, 33);
+            if (SBDL::mouseInRect(loadThisRect)) {
+                SBDL::showTexture(strLoadThis2, 470, y + j * 50);
+            } else {
+                SBDL::showTexture(strLoadThis1, 470, y + j * 50);
+            }
+            if (MOUSE_LEFT_CLICKED(loadThisRect)) {
+                window = MAIN;
+                LoadGame(p_saveSlot + i);
+                delete[] p_saveSlot;
+                return;
+            }
+            SBDL::freeTexture(strLoadThis1);
+            SBDL::freeTexture(strLoadThis2);
+
+            // Trash button
+            SDL_Rect trashRect = {590, y+3 + j*50, 25, 25};
+            if (SBDL::mouseInRect(trashRect)) {
+                SBDL::showTexture(trashButton2, trashRect);
+            } else {
+                SBDL::showTexture(trashButton1, trashRect);
+            }
+            if (MOUSE_LEFT_CLICKED(trashRect)) {
+                DeleteSaveSlot(p_saveSlot, i);
+                return;
+            }
+
             ++j;
-            showedTexture = true;
         }
     }
 
-    if (!showedTexture) {
-        Texture strNotFound = SBDL::createFontTexture(font1, "Not Found", 0, 0, 0);
-        SBDL::showTexture(strNotFound, 10, 50);
+    if (countSaveSlot == 0) {
+        Texture strNotFound = SBDL::createFontTexture(font1, "Not Found", 255, 33, 33);
+        SBDL::showTexture(strNotFound, 370, 200);
         SBDL::freeTexture(strNotFound);
     }
+
+    // Draw white rectangle
+    SDL_Rect coverRect = {0, 0, 700, 195};
+    SBDL::drawRectangle(coverRect, 255, 255, 255);
+
+    // Title
+    Texture strLeaderboard = SBDL::createFontTexture(font3, "Load Game", 0, 162, 232);
+    SBDL::showTexture(strLeaderboard, 110, 80);
+    SBDL::freeTexture(strLeaderboard);
 }
 
 void InitializeGame() {
@@ -1684,7 +1719,7 @@ int main() {
     Save* p_saveSlot = nullptr;
 
     // Preparing game window
-    const int FPS = 30; //frame per second
+    const int FPS = 60; //frame per second
     const int DELAY = 1000 / FPS; //delay we need at each frame
     InitializeGame();
 
