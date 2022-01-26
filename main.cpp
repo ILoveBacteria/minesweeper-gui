@@ -1526,24 +1526,21 @@ void ChangeNameWindow(Player *p_player) {
     static std::string s_newName = " ";
     Keyboard(s_newName);
 
-    SDL_Rect arrowRect = {15 + (int)s_newName.length() * 10, 40, 15, 20};
-    SDL_Rect cancelRect = {5, 5, 40, 40};
-    SDL_Rect checkRect = {10, 500, 50, 50};
-    SDL_Rect inputFieldRect = {10, 40, 100, 50};
+    SDL_Rect inputFieldRect = {210, 285, 400, 70};
+    SDL_Rect arrowRect = {215, 310, 20, 20};
+    SDL_Rect checkRect = {350, 375, 40, 40};
+    SDL_Rect cancelRect = {410, 375, 40, 40};
 
-    SBDL::drawRectangle(inputFieldRect, 120, 120, 120);
+    // Draw Rectangles
+    SBDL::drawRectangle(inputFieldRect,199, 255, 254);
 
-    // Cancel button
-    if (SBDL::mouseInRect(cancelRect)) {
+    // Cancel Button
+    if (SBDL::mouseInRect(cancelRect))
         SBDL::showTexture(cancelButton2, cancelRect);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            window = MENU;
-            s_newName = " ";
-            s_newName.shrink_to_fit();
-        }
-    } else {
+    else
         SBDL::showTexture(cancelButton1, cancelRect);
-    }
+    if (MOUSE_LEFT_CLICKED(cancelRect))
+        window = MENU;
 
     // Check button
     if (SBDL::mouseInRect(checkRect))
@@ -1585,9 +1582,13 @@ void ChangeNameWindow(Player *p_player) {
 
     // Show new name
     Texture strNewName = SBDL::createFontTexture(font1, s_newName, 0, 0, 0);
-    SBDL::showTexture(strNewName, 15, 40);
+    SBDL::showTexture(strNewName, 240, 303);
     SBDL::freeTexture(strNewName);
 
+    // Title
+    Texture strChangeName = SBDL::createFontTexture(font3, "Change Your Name", 0, 162, 232);
+    SBDL::showTexture(strChangeName, 110, 80);
+    SBDL::freeTexture(strChangeName);
 }
 
 void LoadGameWindow(Save *&p_saveSlot) {
