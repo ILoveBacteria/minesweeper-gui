@@ -1499,26 +1499,31 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
 
 void LeaderboardWindow(Player *p_player) {
     int countPlayers = ReadNumberOfPlayers();
-    // Cancel button
-    SDL_Rect cancelRect = {5, 5, 40, 40};
-    if (SBDL::mouseInRect(cancelRect)) {
+    SDL_Rect cancelRect = {770, 5, 40, 40};
+    // Cancel Button
+    if (SBDL::mouseInRect(cancelRect))
         SBDL::showTexture(cancelButton2, cancelRect);
-        if (SBDL::Mouse.clicked(SDL_BUTTON_LEFT, 1, SDL_PRESSED)) {
-            window = MENU;
-        }
-    } else {
+    else
         SBDL::showTexture(cancelButton1, cancelRect);
-    }
+    if (MOUSE_LEFT_CLICKED(cancelRect))
+        window = MENU;
 
     int count = countPlayers >= 5 ? 5 : countPlayers;
     for (int i = 0; i < count; ++i) {
+        SDL_Rect background = {210, 195 + i*50, 400, 40};
         Texture id = SBDL::createFontTexture(font1, (p_player + i)->id, 0, 0, 0);
         Texture score = SBDL::createFontTexture(font1, (p_player + i)->score, 0, 0, 0);
-        SBDL::showTexture(id, 10, 50 + i*50);
-        SBDL::showTexture(score, 300, 50 + i*50);
+        SBDL::drawRectangle(background, 201 + i*12, 255, 202 + i*12);
+        SBDL::showTexture(id, 250, 200 + i*50);
+        SBDL::showTexture(score, 540, 200 + i*50);
         SBDL::freeTexture(id);
         SBDL::freeTexture(score);
     }
+
+    // Title
+    Texture strLeaderboard = SBDL::createFontTexture(font3, "Leaderboard", 0, 162, 232);
+    SBDL::showTexture(strLeaderboard, 110, 80);
+    SBDL::freeTexture(strLeaderboard);
 }
 
 void ChangeNameWindow(Player *p_player) {
