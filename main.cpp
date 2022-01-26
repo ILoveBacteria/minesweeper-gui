@@ -422,11 +422,65 @@ void Keyboard(std::string &str, bool onlyNumber) {
     }
 }
 
+std::string NumToStr(int n) {
+    int length = 0;
+    std::string result;
+
+    // 0
+    if (n == 0) {
+        result.push_back('0');
+        return result;
+    }
+
+    // Length of number
+    for (int i = 0;; ++i) {
+        if (n / pow(10, i) > 0)
+            ++length;
+        else
+            break;
+    }
+
+    // Converting to string
+    for (int i = length-1; i >= 0; --i) {
+        result.push_back((n / pow(10, i)) % 10 + 48);
+    }
+
+    return result;
+}
+
+std::string CurrentTime() {
+    // Current date/time based on current system
+    time_t now = time(nullptr);
+    // convert now to string form
+    return ctime(&now);
+}
+
+std::string ConvertToSavable(SDL_Rect ***a) {
+    std::string result;
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            if (a[i][j] == nullptr)
+                result.push_back('0');
+            else
+                result.push_back('1');
+        }
+    }
+
+    return result;
+}
+
+int ReadNumberOfSaves() {
+    std::ifstream read("save.txt");
+    std::string line;
+    std::getline(read, line);
+    read.close();
+    return StrToNum(line);
+}
+
 Save* ReadSaveSlots() {
     // Reading saves from file
-    std::ifstream read;
+    std::ifstream read("save.txt");
     std::string line;
-    read.open("save.txt");
 
     std::getline(read, line);
     int countSaves = StrToNum(line);
@@ -478,59 +532,43 @@ void DeleteSaveSlot(Save *&p_saveSlot, int index) {
     p_saveSlot = ReadSaveSlots();
 }
 
+void SaveGame() {
+    int countSaves = ReadNumberOfSaves();
+    Save *p_save = ReadSaveSlots();
+
+    // Write in file
+    std::ofstream write;
+    write.open("save.txt");
+
+    write << countSaves + 1 << '\n';
+    for (int i = 0; i < countSaves; ++i) {
+        write << (p_save + i)->countSquaresInRow << '\n';
+        write << (p_save + i)->countBombs << '\n';
+        write << (p_save + i)->time << '\n';
+        write << (p_save + i)->coverSquares << '\n';
+        write << (p_save + i)->flag << '\n';
+        write << (p_save + i)->bomb << '\n';
+        write << (p_save + i)->id << '\n';
+    }
+    delete[] p_save;
+
+    write << NumToStr(game.countSquareInRow) << '\n';
+    write << NumToStr(game.countBombs) << '\n';
+    write << CurrentTime();
+    write << ConvertToSavable(game.square.coverSquare) << '\n';
+    write << ConvertToSavable(game.square.flag) << '\n';
+    write << ConvertToSavable(game.square.bombs) << '\n';
+    write << game.player.id;
+
+    write.close();
+}
+
 int CountFlags() {
     int result = 0;
     for (int i = 0; i < game.countSquareInRow; ++i) {
         for (int j = 0; j < game.countSquareInRow; ++j) {
             if (game.square.flag[i][j] != nullptr)
                 ++result;
-        }
-    }
-
-    return result;
-}
-
-std::string NumToStr(int n) {
-    int length = 0;
-    std::string result;
-
-    // 0
-    if (n == 0) {
-        result.push_back('0');
-        return result;
-    }
-
-    // Length of number
-    for (int i = 0;; ++i) {
-        if (n / pow(10, i) > 0)
-            ++length;
-        else
-            break;
-    }
-
-    // Converting to string
-    for (int i = length-1; i >= 0; --i) {
-        result.push_back((n / pow(10, i)) % 10 + 48);
-    }
-
-    return result;
-}
-
-std::string CurrentTime() {
-    // Current date/time based on current system
-    time_t now = time(nullptr);
-    // convert now to string form
-    return ctime(&now);
-}
-
-std::string ConvertToSavable(SDL_Rect ***a) {
-    std::string result;
-    for (int i = 0; i < game.countSquareInRow; ++i) {
-        for (int j = 0; j < game.countSquareInRow; ++j) {
-            if (a[i][j] == nullptr)
-                result.push_back('0');
-            else
-                result.push_back('1');
         }
     }
 
@@ -601,54 +639,6 @@ int OpenSquare(int row, int column) {
         OpenSquare(row + 1, column + 1);
     }
     return 1;
-}
-
-void SaveGame() {
-    // Reading saves from file
-    std::ifstream read;
-    std::string line;
-    read.open("save.txt");
-
-    std::getline(read, line);
-    int countSaves = StrToNum(line);
-
-    auto *p_save = new Save[countSaves];
-
-    for (int i = 0; i < countSaves; ++i) {
-        std::getline(read, (p_save + i)->countSquaresInRow);
-        std::getline(read, (p_save + i)->countBombs);
-        std::getline(read, (p_save + i)->time);
-        std::getline(read, (p_save + i)->coverSquares);
-        std::getline(read, (p_save + i)->flag);
-        std::getline(read, (p_save + i)->bomb);
-        std::getline(read, (p_save + i)->id);
-    }
-    read.close();
-
-    std::ofstream write;
-    write.open("save.txt");
-
-    write << countSaves + 1 << '\n';
-    for (int i = 0; i < countSaves; ++i) {
-        write << (p_save + i)->countSquaresInRow << '\n';
-        write << (p_save + i)->countBombs << '\n';
-        write << (p_save + i)->time << '\n';
-        write << (p_save + i)->coverSquares << '\n';
-        write << (p_save + i)->flag << '\n';
-        write << (p_save + i)->bomb << '\n';
-        write << (p_save + i)->id << '\n';
-    }
-    delete[] p_save;
-
-    write << NumToStr(game.countSquareInRow) << '\n';
-    write << NumToStr(game.countBombs) << '\n';
-    write << CurrentTime();
-    write << ConvertToSavable(game.square.coverSquare) << '\n';
-    write << ConvertToSavable(game.square.flag) << '\n';
-    write << ConvertToSavable(game.square.bombs) << '\n';
-    write << game.player.id;
-
-    write.close();
 }
 
 void InsertBombs() {
@@ -1643,8 +1633,7 @@ void LeaderboardWindow(Player *p_player) {
     SBDL::freeTexture(strLeaderboard);
 }
 
-void ChangeNameWindow(Player *p_player) {
-    int countPlayers = ReadNumberOfPlayers();
+void ChangeNameWindow() {
     static std::string s_newName = " ";
     Keyboard(s_newName);
 
@@ -1677,24 +1666,45 @@ void ChangeNameWindow(Player *p_player) {
 
     else if (MOUSE_LEFT_CLICKED(checkRect)) {
         SBDL::playSound(soundClick, 1);
-        // Find player in players database
+        int countPlayers = ReadNumberOfPlayers();
+        int countSaves = ReadNumberOfSaves();
+        Player *p_player = ReadPlayers();
+        Save *p_save = ReadSaveSlots();
+
+        // Writing on the player.txt file
+        std::ofstream writePlayer ("player.txt");
+        writePlayer << countPlayers << '\n';
         for (int i = 0; i < countPlayers; ++i) {
-            if (game.player.id == (p_player + i)->id) {
-                (p_player + i)->id = s_newName;
-                game.player.id = s_newName;
-            }
+            writePlayer << (p_player + i)->score << '\n';
+
+            if (game.player.id == (p_player + i)->id)
+                writePlayer << s_newName << '\n';
+            else
+                writePlayer << (p_player + i)->id << '\n';
         }
 
-        // Writing on a text file
-        std::ofstream text ("player.txt");
+        // Writing on the save.txt file
+        std::ofstream writeSave ("save.txt");
+        writeSave << countSaves << '\n';
+        for (int i = 0; i < countSaves; ++i) {
+            writeSave << (p_save + i)->countSquaresInRow << '\n';
+            writeSave << (p_save + i)->countBombs << '\n';
+            writeSave << (p_save + i)->time << '\n';
+            writeSave << (p_save + i)->coverSquares << '\n';
+            writeSave << (p_save + i)->flag << '\n';
+            writeSave << (p_save + i)->bomb << '\n';
 
-        text << countPlayers << '\n';
-        for (int i = 0; i < countPlayers; ++i) {
-            text << (p_player + i)->score << '\n';
-            text << (p_player + i)->id << '\n';
+            if (game.player.id == (p_save + i)->id)
+                writeSave << s_newName << '\n';
+            else
+                writeSave << (p_save + i)->id << '\n';
         }
 
-        text.close();
+        game.player.id = s_newName;
+        writePlayer.close();
+        writeSave.close();
+        delete[] p_player;
+        delete[] p_save;
         window = MENU;
         s_newName = " ";
         s_newName.shrink_to_fit();
@@ -1870,7 +1880,7 @@ int main() {
         }
 
         else if (window == CHANGE_NAME) {
-            ChangeNameWindow(p_players);
+            ChangeNameWindow();
         }
 
         else if (window == LOAD_GAME) {
