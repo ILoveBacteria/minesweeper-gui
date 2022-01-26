@@ -58,7 +58,7 @@ Texture checkButton1, checkButton2, enterButton1, enterButton2, arrow, addUserBu
         trashButton2, cancelButton1, cancelButton2, searchButton1, searchButton2, bombTexture, number1, number2,
         number3, number4, number5, number6, number7, number8, flag, saveButton1, saveButton2, down1, down2, up1, up2;
 Font *font1, *font2, *font3;
-Sound *soundWin, *soundLose, *soundClick, *soundError, *soundLogin;
+Sound *soundWin, *soundLose, *soundClick, *soundLogin;
 
 void LoadTextures() {
     checkButton1 = SBDL::loadTexture("Assets/check1.png");
@@ -102,7 +102,6 @@ void LoadSounds() {
     soundWin = SBDL::loadSound("Assets/win.wav");
     soundLose = SBDL::loadSound("Assets/lose.wav");
     soundClick = SBDL::loadSound("Assets/mousemove.wav");
-    soundError = SBDL::loadSound("Assets/click-error.wav");
     soundLogin = SBDL::loadSound("Assets/login.wav");
 }
 
@@ -125,6 +124,55 @@ int StrToNum(std::string &str) {
     }
 
     return result;
+}
+
+std::string NumToStr(int n) {
+    int length = 0;
+    std::string result;
+
+    // 0
+    if (n == 0) {
+        result.push_back('0');
+        return result;
+    }
+
+    // Length of number
+    for (int i = 0;; ++i) {
+        if (n / pow(10, i) > 0)
+            ++length;
+        else
+            break;
+    }
+
+    // Converting to string
+    for (int i = length-1; i >= 0; --i) {
+        result.push_back((n / pow(10, i)) % 10 + 48);
+    }
+
+    return result;
+}
+
+void Swap(Player &a, Player &b) {
+    Player temp = b;
+    b = a;
+    a = temp;
+}
+
+void BubbleSort(Player *a, const int SIZE) {
+    for (int i = 0; i < SIZE - 1; ++i) {
+        for (int j = 0; j < SIZE - i - 1; ++j) {
+            if (StrToNum((a+j)->score) < StrToNum((a+j+1)->score)) {
+                Swap(a[j], a[j+1]);
+            }
+        }
+    }
+}
+
+std::string CurrentTime() {
+    // Current date/time based on current system
+    time_t now = time(nullptr);
+    // Convert now to string
+    return ctime(&now);
 }
 
 void Keyboard(std::string &str) {
@@ -422,39 +470,6 @@ void Keyboard(std::string &str, bool onlyNumber) {
     }
 }
 
-std::string NumToStr(int n) {
-    int length = 0;
-    std::string result;
-
-    // 0
-    if (n == 0) {
-        result.push_back('0');
-        return result;
-    }
-
-    // Length of number
-    for (int i = 0;; ++i) {
-        if (n / pow(10, i) > 0)
-            ++length;
-        else
-            break;
-    }
-
-    // Converting to string
-    for (int i = length-1; i >= 0; --i) {
-        result.push_back((n / pow(10, i)) % 10 + 48);
-    }
-
-    return result;
-}
-
-std::string CurrentTime() {
-    // Current date/time based on current system
-    time_t now = time(nullptr);
-    // convert now to string form
-    return ctime(&now);
-}
-
 std::string ConvertToSavable(SDL_Rect ***a) {
     std::string result;
     for (int i = 0; i < game.countSquareInRow; ++i) {
@@ -498,17 +513,11 @@ Save* ReadSaveSlots() {
     }
     read.close();
 
-    return countSaves == 0? nullptr: p_save;
+    return countSaves == 0 ? nullptr : p_save;
 }
 
 void DeleteSaveSlot(Save *&p_saveSlot, int index) {
-    int countSaves;
-    // Read number of saves
-    std::ifstream read("save.txt");
-    std::string line;
-    std::getline(read, line);
-    countSaves = StrToNum(line);
-    read.close();
+    int countSaves = ReadNumberOfSaves();
 
     // Writing on a text file
     std::ofstream write ("save.txt");
@@ -561,6 +570,53 @@ void SaveGame() {
     write << game.player.id;
 
     write.close();
+}
+
+Player* ReadPlayers() {
+    std::ifstream read("player.txt");;
+    std::string line;
+
+    std::getline(read, line);
+
+    int countPlayers = StrToNum(line);
+
+    auto *p_player = new Player[countPlayers];
+
+    for (int i = 0; i < countPlayers; ++i) {
+        std::getline(read, (p_player + i)->score);
+        std::getline(read, (p_player + i)->id);
+    }
+    read.close();
+    return p_player;
+}
+
+int ReadNumberOfPlayers() {
+    std::ifstream read("player.txt");;
+    std::string line;
+    std::getline(read, line);
+    read.close();
+    return StrToNum(line);
+}
+
+void AddScore() {
+    int countPlayers = ReadNumberOfPlayers();
+    Player* p_player = ReadPlayers();
+
+    // Writing on a text file
+    std::ofstream text ("player.txt");
+
+    text << countPlayers << '\n';
+    for (int i = 0; i < countPlayers; ++i) {
+        if ((p_player + i)->id == game.player.id)
+            text << NumToStr(StrToNum((p_player + i)->score) + POINT) << '\n';
+        else
+            text << (p_player + i)->score << '\n';
+
+        text << (p_player + i)->id << '\n';
+    }
+
+    text.close();
+    delete[] p_player;
 }
 
 int CountFlags() {
@@ -864,6 +920,65 @@ void CreateGameBoard() {
     }
 }
 
+void ShowGameBoardTextures(bool saveButtonWork) {
+    // Cancel Button
+    SDL_Rect cancelRect = {750, 5, 40, 40};
+    if (SBDL::mouseInRect(cancelRect))
+        SBDL::showTexture(cancelButton2, cancelRect);
+    else
+        SBDL::showTexture(cancelButton1, cancelRect);
+    if (MOUSE_LEFT_CLICKED(cancelRect)) {
+        SBDL::playSound(soundClick, 1);
+        window = MENU;
+    }
+
+    // Save button
+    SDL_Rect saveRect = {700, 5, 40, 40};
+    if (SBDL::mouseInRect(saveRect))
+        SBDL::showTexture(saveButton2, saveRect);
+    else
+        SBDL::showTexture(saveButton1, saveRect);
+
+    if (MOUSE_LEFT_CLICKED(saveRect) && saveButtonWork) {
+        SBDL::playSound(soundClick, 1);
+        window = MENU;
+        SaveGame();
+    }
+    else if (!saveButtonWork)
+        SBDL::drawRectangle(saveRect, 255, 255, 255, 170);
+
+    // Drawing background squares
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            SBDL::drawRectangle(game.square.backgroundSquare[i][j], 219, 219, 219);
+        }
+    }
+
+    // Show bomb and number texture
+    for (int i = 0; i < game.countSquareInRow; ++i) {
+        for (int j = 0; j < game.countSquareInRow; ++j) {
+            if (game.square.bombs[i][j] != nullptr)
+                SBDL::showTexture(bombTexture, *(game.square.bombs[i][j]));
+            else if (game.square.number1[i][j] != nullptr)
+                SBDL::showTexture(number1, *game.square.number1[i][j]);
+            else if (game.square.number2[i][j] != nullptr)
+                SBDL::showTexture(number2, *game.square.number2[i][j]);
+            else if (game.square.number3[i][j] != nullptr)
+                SBDL::showTexture(number3, *game.square.number3[i][j]);
+            else if (game.square.number4[i][j] != nullptr)
+                SBDL::showTexture(number4, *game.square.number4[i][j]);
+            else if (game.square.number5[i][j] != nullptr)
+                SBDL::showTexture(number5, *game.square.number5[i][j]);
+            else if (game.square.number6[i][j] != nullptr)
+                SBDL::showTexture(number6, *game.square.number6[i][j]);
+            else if (game.square.number7[i][j] != nullptr)
+                SBDL::showTexture(number7, *game.square.number7[i][j]);
+            else if (game.square.number8[i][j] != nullptr)
+                SBDL::showTexture(number8, *game.square.number8[i][j]);
+        }
+    }
+}
+
 void LoadGame(Save *p_loadThis) {
     DeallocateGameMemory();
     game.countSquareInRow = StrToNum(p_loadThis->countSquaresInRow);
@@ -897,48 +1012,6 @@ void LoadGame(Save *p_loadThis) {
     }
 
     CountOfBombsNearSquare();
-}
-
-void Swap(Player &a, Player &b) {
-    Player temp = b;
-    b = a;
-    a = temp;
-}
-
-void BubbleSort(Player *a, const int SIZE) {
-    for (int i = 0; i < SIZE - 1; ++i) {
-        for (int j = 0; j < SIZE - i - 1; ++j) {
-            if (StrToNum((a+j)->score) < StrToNum((a+j+1)->score)) {
-                Swap(a[j], a[j+1]);
-            }
-        }
-    }
-}
-
-Player* ReadPlayers() {
-    std::ifstream read("player.txt");;
-    std::string line;
-
-    std::getline(read, line);
-
-    int countPlayers = StrToNum(line);
-
-    auto *p_player = new Player[countPlayers];
-
-    for (int i = 0; i < countPlayers; ++i) {
-        std::getline(read, (p_player + i)->score);
-        std::getline(read, (p_player + i)->id);
-    }
-    read.close();
-    return p_player;
-}
-
-int ReadNumberOfPlayers() {
-    std::ifstream read("player.txt");;
-    std::string line;
-    std::getline(read, line);
-    read.close();
-    return StrToNum(line);
 }
 
 void LoginWindow(Player *&p_player) {
@@ -1040,8 +1113,7 @@ void LoginWindow(Player *&p_player) {
         SBDL::playSound(soundClick, 1);
 
         bool idExist = false;
-        int i;
-        for (i = 0; i < countPlayers; ++i) {
+        for (int i = 0; i < countPlayers; ++i) {
             if (s_idPlayer == (p_player + i)->id) {
                 idExist = true;
                 break;
@@ -1065,6 +1137,7 @@ void LoginWindow(Player *&p_player) {
         SBDL::playSound(soundLogin, 1);
         window = MENU;
         s_loginActive = false;
+        delete[] p_player;
         s_idPlayer = " ";
         s_idPlayer.shrink_to_fit();
     }
@@ -1130,65 +1203,6 @@ void LoginWindow(Player *&p_player) {
     SBDL::freeTexture(strSearchPlayer);
 }
 
-void ShowGameBoardTextures(bool saveButtonWork) {
-    // Cancel Button
-    SDL_Rect cancelRect = {750, 5, 40, 40};
-    if (SBDL::mouseInRect(cancelRect))
-        SBDL::showTexture(cancelButton2, cancelRect);
-    else
-        SBDL::showTexture(cancelButton1, cancelRect);
-    if (MOUSE_LEFT_CLICKED(cancelRect)) {
-        SBDL::playSound(soundClick, 1);
-        window = MENU;
-    }
-
-    // Save button
-    SDL_Rect saveRect = {700, 5, 40, 40};
-    if (SBDL::mouseInRect(saveRect))
-        SBDL::showTexture(saveButton2, saveRect);
-    else
-        SBDL::showTexture(saveButton1, saveRect);
-
-    if (MOUSE_LEFT_CLICKED(saveRect) && saveButtonWork) {
-        SBDL::playSound(soundClick, 1);
-        window = MENU;
-        SaveGame();
-    }
-    else if (!saveButtonWork)
-        SBDL::drawRectangle(saveRect, 255, 255, 255, 170);
-
-    // Drawing background squares
-    for (int i = 0; i < game.countSquareInRow; ++i) {
-        for (int j = 0; j < game.countSquareInRow; ++j) {
-            SBDL::drawRectangle(game.square.backgroundSquare[i][j], 219, 219, 219);
-        }
-    }
-
-    // Show bomb and number texture
-    for (int i = 0; i < game.countSquareInRow; ++i) {
-        for (int j = 0; j < game.countSquareInRow; ++j) {
-            if (game.square.bombs[i][j] != nullptr)
-                SBDL::showTexture(bombTexture, *(game.square.bombs[i][j]));
-            else if (game.square.number1[i][j] != nullptr)
-                SBDL::showTexture(number1, *game.square.number1[i][j]);
-            else if (game.square.number2[i][j] != nullptr)
-                SBDL::showTexture(number2, *game.square.number2[i][j]);
-            else if (game.square.number3[i][j] != nullptr)
-                SBDL::showTexture(number3, *game.square.number3[i][j]);
-            else if (game.square.number4[i][j] != nullptr)
-                SBDL::showTexture(number4, *game.square.number4[i][j]);
-            else if (game.square.number5[i][j] != nullptr)
-                SBDL::showTexture(number5, *game.square.number5[i][j]);
-            else if (game.square.number6[i][j] != nullptr)
-                SBDL::showTexture(number6, *game.square.number6[i][j]);
-            else if (game.square.number7[i][j] != nullptr)
-                SBDL::showTexture(number7, *game.square.number7[i][j]);
-            else if (game.square.number8[i][j] != nullptr)
-                SBDL::showTexture(number8, *game.square.number8[i][j]);
-        }
-    }
-}
-
 void GameOverWindow() {
     // Removing covers
     for (int i = 0; i < game.countSquareInRow; ++i) {
@@ -1237,27 +1251,7 @@ void WinGameWindow() {
     SBDL::freeTexture(strScore);
 }
 
-void AddScore(Player *p_player) {
-    int countPlayers = ReadNumberOfPlayers();
-    int j;
-    for (j = 0; j < countPlayers; ++j) {
-        if ((p_player + j)->id == game.player.id)
-            break;
-    }
-    (p_player+j)->score = NumToStr(StrToNum((p_player+j)->score) + POINT);
-    // Writing on a text file
-    std::ofstream text ("player.txt");
-
-    text << countPlayers << '\n';
-    for (int i = 0; i < countPlayers; ++i) {
-        text << (p_player + i)->score << '\n';
-        text << (p_player + i)->id << '\n';
-    }
-
-    text.close();
-}
-
-void MainWindow(Player *p_player) {
+void MainWindow() {
     ShowGameBoardTextures(true);
     // string: Number of bombs left
     Texture strBombLeft =  SBDL::createFontTexture(font1, NumToStr(game.countBombs - CountFlags()) +
@@ -1285,7 +1279,7 @@ void MainWindow(Player *p_player) {
 
                     else if (CountOpenedSquares() == pow(game.countSquareInRow, 2) - game.countBombs) {
                         SBDL::playSound(soundWin, 1);
-                        AddScore(p_player);
+                        AddScore();
                         window = WIN;
                     }
                 }
@@ -1496,8 +1490,7 @@ void DifficultySelectWindow() {
     }
 }
 
-void MenuWindow(Player *p_player, Save *&saveSlot) {
-    int countPlayers = ReadNumberOfPlayers();
+void MenuWindow(Player *&p_player, Save *&saveSlot) {
     const int x = 320;
     SDL_Rect newGameRect = {x, 200, 100, 40};
     SDL_Rect loadGameRect = {x, 250, 100, 40};
@@ -1561,6 +1554,9 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     }
     if (MOUSE_LEFT_CLICKED(leaderboardRect)) {
         SBDL::playSound(soundClick, 1);
+
+        p_player = ReadPlayers();
+        int countPlayers = ReadNumberOfPlayers();
         // Sorting players by score
         BubbleSort(p_player, countPlayers);
         window = LEADERBOARD;
@@ -1578,6 +1574,7 @@ void MenuWindow(Player *p_player, Save *&saveSlot) {
     }
     if (MOUSE_LEFT_CLICKED(logoutRect)) {
         SBDL::playSound(soundClick, 1);
+        p_player = ReadPlayers();
         window = LOGIN;
         return;
     }
@@ -1613,6 +1610,7 @@ void LeaderboardWindow(Player *p_player) {
     if (MOUSE_LEFT_CLICKED(cancelRect)) {
         SBDL::playSound(soundClick, 1);
         window = MENU;
+        delete[] p_player;
     }
 
     int count = countPlayers >= 5 ? 5 : countPlayers;
@@ -1727,15 +1725,7 @@ void ChangeNameWindow() {
 
 void LoadGameWindow(Save *&p_saveSlot) {
     static int y = 200;
-    int countSaveSlot;
-
-    // Read number of saves
-    std::ifstream read;
-    std::string line;
-    read.open("save.txt");
-    std::getline(read, line);
-    read.close();
-    countSaveSlot = StrToNum(line);
+    int countSaveSlot = ReadNumberOfSaves();
 
     // Cancel Button
     SDL_Rect cancelRect = {770, 5, 40, 40};
@@ -1746,6 +1736,7 @@ void LoadGameWindow(Save *&p_saveSlot) {
     if (MOUSE_LEFT_CLICKED(cancelRect)) {
         SBDL::playSound(soundClick, 1);
         window = MENU;
+        delete[] p_saveSlot;
     }
 
     // Down Button
@@ -1864,7 +1855,7 @@ int main() {
         }
 
         else if (window == MAIN) {
-            MainWindow(p_players);
+            MainWindow();
         }
 
         else if (window == DIFFICULTY) {
