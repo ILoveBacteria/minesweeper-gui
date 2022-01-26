@@ -516,9 +516,9 @@ Save* ReadSaveSlots() {
     return countSaves == 0 ? nullptr : p_save;
 }
 
-void DeleteSaveSlot(Save *&p_saveSlot, int index) {
+void DeleteSaveSlot(int index) {
     int countSaves = ReadNumberOfSaves();
-
+    Save *p_saveSlot = ReadSaveSlots();
     // Writing on a text file
     std::ofstream write ("save.txt");
 
@@ -538,7 +538,22 @@ void DeleteSaveSlot(Save *&p_saveSlot, int index) {
     write.close();
 
     delete[] p_saveSlot;
-    p_saveSlot = ReadSaveSlots();
+}
+
+void DeleteAllSaveSlots(std::string& id) {
+    int countSaves = ReadNumberOfSaves();
+    Save *p_saveSlot = ReadSaveSlots();
+    for (int i = 0; i < countSaves; ++i) {
+        if (id == (p_saveSlot + i)->id) {
+            DeleteSaveSlot(i);
+            delete[] p_saveSlot;
+            p_saveSlot = ReadSaveSlots();
+            countSaves = ReadNumberOfSaves();
+            --i;
+        }
+    }
+
+    delete[] p_saveSlot;
 }
 
 void SaveGame() {
@@ -1081,6 +1096,7 @@ void LoginWindow(Player *&p_player) {
         }
 
         if (idExist) {
+            DeleteAllSaveSlots(s_idPlayer);
             // Writing on a text file
             std::ofstream write ("player.txt");
 
@@ -1737,6 +1753,7 @@ void LoadGameWindow(Save *&p_saveSlot) {
         SBDL::playSound(soundClick, 1);
         window = MENU;
         delete[] p_saveSlot;
+        return;
     }
 
     // Down Button
@@ -1801,7 +1818,9 @@ void LoadGameWindow(Save *&p_saveSlot) {
                 SBDL::showTexture(trashButton1, trashRect);
             if (MOUSE_LEFT_CLICKED(trashRect)) {
                 SBDL::playSound(soundClick, 1);
-                DeleteSaveSlot(p_saveSlot, i);
+                delete[] p_saveSlot;
+                DeleteSaveSlot(i);
+                p_saveSlot = ReadSaveSlots();
                 return;
             }
 
