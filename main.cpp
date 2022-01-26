@@ -118,230 +118,298 @@ int StrToNum(std::string &str) {
     return result;
 }
 
-void Keyboard(std::string &str, bool onlyNumber = false) {
+void Keyboard(std::string &str) {
     if (SBDL::keyPressed(SDL_SCANCODE_BACKSPACE)) {
         str.pop_back();
         if (str.length() == 0)
             str.push_back(' ');
         str.shrink_to_fit();
     }
-    else if (onlyNumber) {
-        if (SBDL::keyPressed(SDL_SCANCODE_KP_0) || SBDL::keyPressed(SDL_SCANCODE_0)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('0');
-        }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_KP_1) || SBDL::keyPressed(SDL_SCANCODE_1)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('1');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_0) || SBDL::keyPressed(SDL_SCANCODE_0)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('0');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_KP_2) || SBDL::keyPressed(SDL_SCANCODE_2)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('2');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_1) || SBDL::keyPressed(SDL_SCANCODE_1)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('1');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_KP_3) || SBDL::keyPressed(SDL_SCANCODE_3)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('3');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_2) || SBDL::keyPressed(SDL_SCANCODE_2)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('2');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_KP_4) || SBDL::keyPressed(SDL_SCANCODE_4)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('4');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_3) || SBDL::keyPressed(SDL_SCANCODE_3)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('3');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_KP_5) || SBDL::keyPressed(SDL_SCANCODE_5)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('5');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_4) || SBDL::keyPressed(SDL_SCANCODE_4)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('4');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_KP_6) || SBDL::keyPressed(SDL_SCANCODE_6)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('6');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_5) || SBDL::keyPressed(SDL_SCANCODE_5)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('5');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_KP_7) || SBDL::keyPressed(SDL_SCANCODE_7)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('7');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_6) || SBDL::keyPressed(SDL_SCANCODE_6)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('6');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_KP_8) || SBDL::keyPressed(SDL_SCANCODE_8)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('8');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_7) || SBDL::keyPressed(SDL_SCANCODE_7)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('7');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_KP_9) || SBDL::keyPressed(SDL_SCANCODE_9)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('9');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_8) || SBDL::keyPressed(SDL_SCANCODE_8)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('8');
+    }
 
-    } else {
-        if (SBDL::keyPressed(SDL_SCANCODE_A)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('a');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_9) || SBDL::keyPressed(SDL_SCANCODE_9)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('9');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_B)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('b');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_A)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('a');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_C)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('c');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_B)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('b');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_D)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('d');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_C)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('c');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_E)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('e');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_D)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('d');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_F)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('f');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_E)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('e');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_G)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('g');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_F)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('f');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_H)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('h');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_G)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('g');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_I)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('i');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_H)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('h');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_J)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('j');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_I)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('i');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_K)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('k');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_J)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('j');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_L)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('l');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_K)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('k');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_M)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('m');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_L)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('l');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_N)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('n');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_M)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('m');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_O)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('o');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_N)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('n');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_P)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('p');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_O)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('o');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_Q)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('q');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_P)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('p');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_R)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('r');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_Q)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('q');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_S)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('s');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_R)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('r');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_T)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('t');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_S)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('s');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_U)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('u');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_T)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('t');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_V)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('v');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_U)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('u');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_W)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('w');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_V)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('v');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_X)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('x');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_W)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('w');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_Y)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('y');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_X)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('x');
+    }
 
-        else if (SBDL::keyPressed(SDL_SCANCODE_Z)) {
-            if (str[0] == ' ')
-                str.pop_back();
-            str.push_back('z');
-        }
+    else if (SBDL::keyPressed(SDL_SCANCODE_Y)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('y');
+    }
+
+    else if (SBDL::keyPressed(SDL_SCANCODE_Z)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('z');
+    }
+
+}
+
+void Keyboard(std::string &str, bool onlyNumber) {
+    if (SBDL::keyPressed(SDL_SCANCODE_BACKSPACE)) {
+        str.pop_back();
+        if (str.length() == 0)
+            str.push_back(' ');
+        str.shrink_to_fit();
+    }
+
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_0) || SBDL::keyPressed(SDL_SCANCODE_0)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('0');
+    }
+
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_1) || SBDL::keyPressed(SDL_SCANCODE_1)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('1');
+    }
+
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_2) || SBDL::keyPressed(SDL_SCANCODE_2)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('2');
+    }
+
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_3) || SBDL::keyPressed(SDL_SCANCODE_3)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('3');
+    }
+
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_4) || SBDL::keyPressed(SDL_SCANCODE_4)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('4');
+    }
+
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_5) || SBDL::keyPressed(SDL_SCANCODE_5)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('5');
+    }
+
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_6) || SBDL::keyPressed(SDL_SCANCODE_6)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('6');
+    }
+
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_7) || SBDL::keyPressed(SDL_SCANCODE_7)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('7');
+    }
+
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_8) || SBDL::keyPressed(SDL_SCANCODE_8)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('8');
+    }
+
+    else if (SBDL::keyPressed(SDL_SCANCODE_KP_9) || SBDL::keyPressed(SDL_SCANCODE_9)) {
+        if (str[0] == ' ')
+            str.pop_back();
+        str.push_back('9');
     }
 }
 
