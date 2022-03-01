@@ -33,3 +33,5 @@ add_executable(Minesweeper main.cpp)
 
 target_link_libraries(Minesweeper -std=c++11 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf)
 ```
+
+4. After compiling, place *.exe* next to *.dll* files in `cmake-build-debug` directory and run it
