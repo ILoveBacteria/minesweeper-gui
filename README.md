@@ -10,9 +10,8 @@ This program uses [sdl](https://github.com/libsdl-org/SDL) and [SBDL](https://gi
 
 ## Compile
 
-1. Download SBDL from [here](https://github.com/SBU-CE/SBDL)
-2. Download sdl and move the folder including *SDL2, SDL2_image, SDL2_mixer, SDL2_ttf* to your C drive
-3. Here is a sample CMake:
+1. Download SBDL from [here](https://github.com/SBU-CE/SBDL) and read the tutorial
+2. Here is a sample CMake:
 
 ```CMake
 cmake_minimum_required(VERSION 3.20)
@@ -33,5 +32,3 @@ add_executable(Minesweeper main.cpp)
 
 target_link_libraries(Minesweeper -std=c++11 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf)
 ```
-
-4. After compiling, place *.exe* next to *.dll* files in `cmake-build-debug` directory and run it
