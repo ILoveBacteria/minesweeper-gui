@@ -4,6 +4,10 @@
 
 This is my project for my basic programming course at Shahid Beheshti University.
 
+
+![App screenshots1](https://github.com/ILoveBacteria/minesweeper-gui/blob/master/Assets/preview2.png)
+![App screenshots2](https://github.com/ILoveBacteria/minesweeper-gui/blob/master/Assets/preview3.png)
+
 ## Libraries
 
 This program uses [sdl](https://github.com/libsdl-org/SDL) and [SBDL](https://github.com/SBU-CE/SBDL) library
