@@ -59,7 +59,7 @@ Texture checkButton1, checkButton2, enterButton1, enterButton2, arrow, addUserBu
         trashButton2, cancelButton1, cancelButton2, searchButton1, searchButton2, bombTexture, number1, number2,
         number3, number4, number5, number6, number7, number8, flag, saveButton1, saveButton2, down1, down2, up1, up2;
 Font *font1, *font2, *font3;
-Sound *soundWin, *soundLose, *soundClick, *soundLogin;
+Sound *soundWin, *soundLose, *soundClick, *soundLogin, *soundLogout;
 
 void LoadTextures() {
     checkButton1 = SBDL::loadTexture("Assets/check1.png");
@@ -104,6 +104,7 @@ void LoadSounds() {
     soundLose = SBDL::loadSound("Assets/lose.wav");
     soundClick = SBDL::loadSound("Assets/mousemove.wav");
     soundLogin = SBDL::loadSound("Assets/login.wav");
+    soundLogout = SBDL::loadSound("Assets/logout.wav");
 }
 
 int pow(int n, int power) {
@@ -1595,7 +1596,7 @@ void MenuWindow(Player *&p_player, Save *&saveSlot) {
         SBDL::drawRectangle(logoutRect, 255, 255, 255, 170);
     }
     if (MOUSE_LEFT_CLICKED(logoutRect)) {
-        SBDL::playSound(soundClick, 1);
+        SBDL::playSound(soundLogout, 1);
         p_player = ReadPlayers();
         window = LOGIN;
         return;
