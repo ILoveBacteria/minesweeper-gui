@@ -1,5 +1,13 @@
 # Minesweeper GUI
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Issues](https://img.shields.io/github/issues/ILoveBacteria/minesweeper-gui)](https://github.com/ILoveBacteria/minesweeper-gui/issues)
+[![Forks](https://img.shields.io/github/forks/ILoveBacteria/minesweeper-gui)](https://github.com/ILoveBacteria/minesweeper-gui/network/members)
+[![Stars](https://img.shields.io/github/stars/ILoveBacteria/minesweeper-gui)]()
+[![Latest release](https://img.shields.io/github/release/ILoveBacteria/minesweeper-gui)](https://github.com/ILoveBacteria/minesweeper-gui/releases)
+[![Watchers](https://img.shields.io/github/watchers/ILoveBacteria/minesweeper-gui)]()
+[![Last commit](https://img.shields.io/github/last-commit/ILoveBacteria/minesweeper-gui)](https://github.com/ILoveBacteria/minesweeper-gui/commits/master)
+
 ## Description
 
 This is my project for my basic programming course at Shahid Beheshti University.
