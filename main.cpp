@@ -1633,6 +1633,7 @@ void LeaderboardWindow(Player *p_player) {
         SBDL::playSound(soundClick, 1);
         window = MENU;
         delete[] p_player;
+        return;
     }
 
     int count = countPlayers >= 5 ? 5 : countPlayers;
