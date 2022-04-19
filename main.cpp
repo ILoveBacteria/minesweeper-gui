@@ -28,6 +28,7 @@ struct Save {
 struct Game {
     int countBombs;
     int countSquareInRow;
+    unsigned int stopWatch;
     Player player;
     struct Square {
         SDL_Rect **backgroundSquare;
@@ -913,6 +914,8 @@ void AllocateGameMemory() {
             game.square.bombs[i][j] = nullptr;
         }
     }
+
+    game.stopWatch = SBDL::getTime();
 }
 
 void CreateGameBoard() {
@@ -1270,10 +1273,13 @@ void WinGameWindow() {
 void MainWindow() {
     ShowGameBoardTextures(true);
     // string: Number of bombs left
-    Texture strBombLeft =  SBDL::createFontTexture(font1, NumToStr(game.countBombs - CountFlags()) +
+    Texture strBombLeft = SBDL::createFontTexture(font1, NumToStr(game.countBombs - CountFlags()) +
                                                           " Bombs left", 0, 0, 0);
+    Texture strStopWatch = SBDL::createFontTexture(font1, "Time elapsed: " + NumToStr((SBDL::getTime() - game.stopWatch) / 1000), 0, 0, 0);
     SBDL::showTexture(strBombLeft, 630, 50);
+    SBDL::showTexture(strStopWatch, 630, 90);
     SBDL::freeTexture(strBombLeft);
+    SBDL::freeTexture(strStopWatch);
 
     // Handle mouse clicks and Draw rectangles that cover numbers and bombs
     for (int i = 0; i < game.countSquareInRow; ++i) {
