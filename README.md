@@ -53,6 +53,12 @@ target_link_libraries(Minesweeper -std=c++11 -lSDL2main -lSDL2 -lSDL2_image -lSD
 
 5. Compile the project and run
 
+## License
+
+This project is using **GNU General Public License v3.0**
+
+Read full LICENSE [here](https://github.com/ILoveBacteria/minesweeper-gui/blob/master/LICENSE)
+
 ## Last Release
 
 You can download and run the last release from [here](https://github.com/ILoveBacteria/minesweeper-gui/releases)
